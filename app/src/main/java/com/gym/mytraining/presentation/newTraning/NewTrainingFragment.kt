@@ -21,8 +21,10 @@ import com.gym.mytraining.databinding.FragmentNewTraningBinding
 import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
 import com.gym.mytraining.presentation.adapter.ExerciseAdapter
+import com.gym.mytraining.presentation.exercise.ExerciseViewModel
 
 import com.gym.mytraining.presentation.traning.TrainingFragmentDirections
+import com.gym.mytraining.presentation.viewState.ViewStateExercise
 import com.gym.mytraining.presentation.viewState.ViewStateTraining
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.sql.Timestamp
@@ -31,11 +33,16 @@ class NewTrainingFragment : Fragment() {
     private var _binding: FragmentNewTraningBinding? = null
     private val binding get() = _binding!!
     private val viewModel: NewTrainingViewModel by viewModel()
+    private val viewModelExercise: ExerciseViewModel by viewModel()
     private var training: Training? = null
     private val args = navArgs<NewTrainingFragmentArgs>()
-    private var typeScreen: Int = 0
+    private lateinit var typeScreen: TypeOperation
 
     private val listExercise = mutableListOf<Exercise>()
+
+    enum class TypeOperation {
+        EDIT, INSERT
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,63 +52,100 @@ class NewTrainingFragment : Fragment() {
         val root: View = binding.root
 
         training = args.value.training
+        typeScreen = args.value.typeScreen
 
-        training?.let {
-            //Editar
-            if (typeScreen == 1) {
+        if (typeScreen == TypeOperation.INSERT) {
+            binding.btInsert.setText(getString(R.string.bt_new_training))
+        }else if (typeScreen == TypeOperation.EDIT) {
+            training?.let {
+                observeExercise()
                 setDadosTela(it)
-                binding.btInsert.setText("Editar Treino")
-            } else if (typeScreen == 2) {
-                //Visualizar
-                setDadosTela(it, true)
-                binding.btInsert.setText("Cadastrar Treino")
+                viewModelExercise.getAll(training!!)
+                binding.btInsert.setText(getString(R.string.bt_edit_training))
+                binding.tvTitleTraining.setText(getString(R.string.bt_edit_training))
             }
         }
 
         (activity as AppCompatActivity).supportActionBar?.hide()
 
+        listerners()
 
+        observeTraining()
+
+        return root
+    }
+
+    private fun listerners() {
         binding.btInsert.setOnClickListener {
 
             val txName = binding.tiNome.text.toString()
-            val txDescription = binding.tiDescription.text.toString()
 
-            if (typeScreen == 0) {
-                val dateTimeStamp = Timestamp(System.currentTimeMillis())
-                val training = Training(
-                    idTraining = "",
-                    idUsuario = "",
-                    name = txName,
-                    description = txDescription,
-                    //date = dateTimeStamp,
-                )
+            if (txName.isNullOrEmpty()) {
+                binding.tiNome.error = getString(R.string.training_name_empty)
+            } else {
+                val txDescription = binding.tiDescription.text.toString()
 
-                insertTraining(training, listExercise)
+                if (typeScreen == TypeOperation.INSERT) {
+                    val dateTimeStamp = Timestamp(System.currentTimeMillis())
+                    val training = Training(
+                        idTraining = "",
+                        idUsuario = "",
+                        name = txName,
+                        description = txDescription,
+                        //date = dateTimeStamp,
+                    )
+                    insertTraining(training, listExercise)
+                }else if (typeScreen == TypeOperation.EDIT) {
 
+                    val dateTimeStamp = Timestamp(System.currentTimeMillis())
+
+                    val training = training!!.copy(
+                        name = txName,
+                        description = txDescription,
+                        //date = dateTimeStamp,
+                        )
+
+                    updateTraining(training, listExercise)
+                }
             }
         }
-
 
         binding.tvInsertExercise.setOnClickListener {
             insertExercise(requireContext())
         }
 
+        binding.ivVoltar.setOnClickListener {
+            findNavController().navigateUp()
+        }
+    }
+
+    private fun observeTraining() {
         viewModel.viewStateTraining.observe(viewLifecycleOwner) { viewState ->
             when (viewState) {
                 is ViewStateTraining.Loading -> showLoading(viewState.loading)
-                is ViewStateTraining.Success ->  success()
+                is ViewStateTraining.Success -> success()
                 is ViewStateTraining.Failure -> showErro(viewState.messengerError)
                 else -> {}
             }
         }
-
-        binding.ivVoltar.setOnClickListener {
-            findNavController().navigateUp()
-        }
-
-        return root
     }
 
+    private fun observeExercise() {
+        viewModelExercise.viewStateExercise.observe(viewLifecycleOwner) { viewState ->
+            when (viewState) {
+                is ViewStateExercise.Loading -> showLoading(viewState.loading)
+                is ViewStateExercise.SuccessList ->successListExercise(viewState.list)
+                is ViewStateExercise.Success -> success()
+                is ViewStateExercise.Failure -> showErro(viewState.messengerError)
+                else -> {}
+            }
+        }
+    }
+
+    private fun successListExercise(listResponse:List<Exercise>) {
+        listExercise.addAll(listResponse)
+        setAdapter(listResponse)
+    }
     private fun showLoading(isLoading: Boolean) {
         //   binding.progressBar.isVisible = isLoading
     }
@@ -126,9 +170,9 @@ class NewTrainingFragment : Fragment() {
         val builder = android.app.AlertDialog.Builder(requireContext())
         with(builder)
         {
-            setTitle("Operação realizada com sucesso!!")
+            setTitle(getString(R.string.operation_success))
             setCancelable(false) //não fecha quando clicam fora do dialog
-            setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
+            setPositiveButton(getString(R.string.ok), DialogInterface.OnClickListener { dialog, which ->
                 val action =
                     NewTrainingFragmentDirections.actionNewTraningFragmentToTraningFragment()
                 findNavController().navigate(action)
@@ -141,26 +185,18 @@ class NewTrainingFragment : Fragment() {
         viewModel.insert(training, listExercise)
     }
 
+    private fun updateTraining(training: Training, listExercise: List<Exercise>) {
+        viewModel.update(training, listExercise)
+    }
+
 
     private fun setDadosTela(training: Training, bloqueio: Boolean = false) {
-//        binding.tiInKmPercorrido.setText(entregaSimples.totalKm.toString())
-//        binding.tiInValorKmInformado.setText(entregaSimples.valorInformado.toString())
-//        binding.tiOutraDespesa.setText(entregaSimples.valorDespExtra.toString())
-//        binding.tiValorTipo.setText(entregaSimples.valorTpCalc.toString())
-//        if(entregaSimples.tipoCalc >=0){
-//            (binding.tiOpcao.editText as? AutoCompleteTextView)?.selectItem(items[entregaSimples.tipoCalc],entregaSimples.tipoCalc)
-//            binding.tiValorTipo.visibility = View.VISIBLE
-//        }
-//        tipoCalculo = entregaSimples.tipoCalc
-//        binding.tvValorKm.text = "Valor calculado R$: ${entregaSimples.valorEntregaCalculado}"
-//
-//        if(bloqueio){
-//            binding.tiInKmPercorrido.isEnabled = false
-//            binding.tiInValorKmInformado.isEnabled = false
-//            binding.tiOutraDespesa.isEnabled = false
-//            binding.tiValorTipo.isEnabled = false
-//            binding.tiOpcao.isEnabled = false
-//        }
+        binding.tiNome.setText(training.name)
+
+        val description = if(training.description.isNullOrEmpty()) " " else training.description
+
+        binding.tiDescription.setText(description)
+
     }
 
     private fun insertExercise(contextTela: Context) {
@@ -174,9 +210,9 @@ class NewTrainingFragment : Fragment() {
 
         builder.setView(view)
 
-        builder.setPositiveButton("OK") { dialog, which -> }
+        builder.setPositiveButton(getString(R.string.ok),) { dialog, which -> }
 
-        builder.setNegativeButton("Cancel", null)
+        builder.setNegativeButton(getString(R.string.bt_cancel_dialog), null)
 
         val dialog = builder.create()
 
@@ -188,7 +224,7 @@ class NewTrainingFragment : Fragment() {
                 val tiObservation = view.findViewById<TextInputEditText>(R.id.tiObservationExercise)
 
                 if(tiName.text.isNullOrEmpty()){
-                    val erro = "Digite o nome do exercício"
+                    val erro = getString(R.string.training_name_empty)
                     tiName.error = erro
                 }else{
 
@@ -226,13 +262,15 @@ class NewTrainingFragment : Fragment() {
 //            findNavController().navigate(action)
         }
 
-        adapter.onItemClickEditar = {
+        adapter.onItemClickEditar = { exercise, _ ->
 //            val action =  ListaEntregaRotaFragmentDirections.actionListaEntregaRotaFragmentToDadosVeiculoFragment(2,it)
 //            findNavController().navigate(action)
         }
 
-        adapter.onItemClickExcluir = {
-            // excluirEntrega(requireContext(),it)
+        adapter.onItemClickExcluir = { _, position ->
+            val itemDeleted = listExercise.get(position).copy(deleted = !listExercise.get(position).deleted)
+            listExercise.set(position,itemDeleted)
+            setAdapter(listExercise)
         }
 
         binding.recyclerviewExercise.adapter = adapter

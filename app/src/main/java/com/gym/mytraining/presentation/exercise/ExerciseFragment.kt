@@ -23,7 +23,6 @@ import com.gym.mytraining.presentation.adapter.ExerciseAdapter
 import com.gym.mytraining.presentation.viewState.ViewStateExercise
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-
 class ExerciseFragment : Fragment() {
 
     private var _binding: FragmentExerciseBinding? = null
@@ -80,7 +79,7 @@ class ExerciseFragment : Fragment() {
     private fun showLoading(isLoading: Boolean) {
         //binding.carregamento.isVisible = isLoading
     }
-    //
+
     private fun showErro(text: String) {
         var view = binding.root.rootView
         val snackBarView = Snackbar.make(view, text , Snackbar.LENGTH_LONG)
@@ -111,12 +110,13 @@ class ExerciseFragment : Fragment() {
             changeExercise(requireContext(),it,TypeOperation.VIEW)
         }
 
-        rotaAdapter.onItemClickEditar = {
-            changeExercise(requireContext(),it,TypeOperation.EDIT)
+
+        rotaAdapter.onItemClickEditar = { exercise, _ ->
+            changeExercise(requireContext(),exercise,TypeOperation.EDIT)
         }
 
-        rotaAdapter.onItemClickExcluir = {
-            deletExercise(requireContext(),it)
+        rotaAdapter.onItemClickExcluir = { exercise, _ ->
+            deletExercise(requireContext(),exercise)
         }
 
         binding.recyclerview.adapter = rotaAdapter
@@ -129,11 +129,11 @@ class ExerciseFragment : Fragment() {
 
         builder.setTitle(getString(R.string.confirm_delet, exercise.name))
 
-        builder.setPositiveButton("Sim") { dialog, which ->
+        builder.setPositiveButton(getString(R.string.yes)) { dialog, which ->
                 viewModel.deleteExercise(exercise)
         }
 
-        builder.setNegativeButton("Não", null)
+        builder.setNegativeButton(getString(R.string.no), null)
 
         builder.create()
 

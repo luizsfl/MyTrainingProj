@@ -8,4 +8,5 @@ data class Exercise(
     val name:String = "",
     //val image:Uri = Uri.parse(""),
     val observation:String = "",
+    val deleted :Boolean = false,
 ):java.io.Serializable

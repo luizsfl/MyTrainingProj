@@ -23,6 +23,7 @@ import com.gym.mytraining.domain.useCase.training.TrainingGetAllUseCase
 import com.gym.mytraining.domain.useCase.training.TrainingInsertUseCase
 import com.gym.mytraining.domain.useCase.training.TrainingInteractor
 import com.gym.mytraining.domain.useCase.training.TrainingInteractorImp
+import com.gym.mytraining.domain.useCase.training.TrainingUpdateUseCase
 import com.gym.mytraining.domain.useCase.usuario.UsuarioInsertUseCase
 import com.gym.mytraining.domain.useCase.usuario.UsuarioInteractor
 import com.gym.mytraining.domain.useCase.usuario.UsuarioInteractorImp
@@ -54,6 +55,7 @@ val useCaseModule = module {
     factory { TrainingInsertUseCase( trainingRepository= get()) }
     factory { TrainingGetAllUseCase( trainingRepository= get()) }
     factory { TrainingDeleteUseCase( trainingRepository= get()) }
+    factory { TrainingUpdateUseCase( trainingRepository= get()) }
 
     factory { ExerciseGetAllUseCase( exerciseRepository= get()) }
     factory { ExerciseDeleteUseCase( exerciseRepository= get()) }
@@ -74,6 +76,7 @@ val interactorModule = module {
             trainingInsertUseCase = get(),
             trainingGetAllUseCase = get(),
             trainingDeleteUseCase = get(),
+            trainingUpdateUseCase = get(),
         )
     }
 
