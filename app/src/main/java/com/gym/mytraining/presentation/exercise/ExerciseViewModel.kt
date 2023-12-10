@@ -7,9 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
 import com.gym.mytraining.domain.useCase.exercise.ExerciseInteractor
-import com.gym.mytraining.domain.useCase.training.TrainingInteractor
 import com.gym.mytraining.presentation.viewState.ViewStateExercise
-import com.gym.mytraining.presentation.viewState.ViewStateTraining
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -46,6 +44,17 @@ class ExerciseViewModel(
     fun updateExercise(exercise: Exercise) {
         viewModelScope.launch {
             exerciseInteractor.update(exercise)
+                .onStart { _viewStateExercise.value = ViewStateExercise.Loading(loading = true) }
+                .catch {
+                    _viewStateExercise.value = ViewStateExercise.Failure(messengerError = it.message.orEmpty())
+                }
+                .collect { _viewStateExercise.value = ViewStateExercise.Success(it)}
+        }
+    }
+
+    fun insertExercise(exercise: Exercise) {
+        viewModelScope.launch {
+            exerciseInteractor.insert(exercise)
                 .onStart { _viewStateExercise.value = ViewStateExercise.Loading(loading = true) }
                 .catch {
                     _viewStateExercise.value = ViewStateExercise.Failure(messengerError = it.message.orEmpty())
