@@ -2,6 +2,7 @@ package com.gym.mytraining.data.dataSource
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.dataObjects
 import com.gym.mytraining.data.Config.ConfiguracaoFirebase
 import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.flowOn
 interface ExerciseDataSource {
     fun getAllExercise(training: Training): Flow<List<Exercise>>
     fun delete(exercise: Exercise): Flow<Exercise>
+    fun update(exercise: Exercise): Flow<Exercise>
 
 //    fun deleteEntregaSimples(training: Training): Flow<Training>
 //    fun updateEntregaSimples(training: Training): Flow<Training>
@@ -27,12 +29,12 @@ class ExerciseDataSourceImp (
 ):ExerciseDataSource {
 
     override fun getAllExercise(training: Training): Flow<List<Exercise>> {
-        return callbackFlow  {
+        return callbackFlow {
 
             val idTraining = training.idTraining
 
             autenticacaFirestore.collection("exercise")
-                .whereEqualTo("idTraining",idTraining)
+                .whereEqualTo("idTraining", idTraining)
                 .get()
                 .addOnSuccessListener { result ->
 
@@ -42,7 +44,7 @@ class ExerciseDataSourceImp (
 
                         val exercise = document.toObject(Exercise::class.java)!!
 
-                         val newTraining = exercise.copy(idExercise = document.id)
+                        val newTraining = exercise.copy(idExercise = document.id)
 
                         listResponse.add(newTraining)
                     }
@@ -54,14 +56,14 @@ class ExerciseDataSourceImp (
                     val messengerErro = "getAllExercise ${it.message.toString()}"
                     trySend(error(messengerErro))
                 }
-            awaitClose{
+            awaitClose {
                 close()
             }
         }.flowOn(dispatcher)
     }
 
     override fun delete(item: Exercise): Flow<Exercise> {
-        return callbackFlow  {
+        return callbackFlow {
 
             autenticacaFirestore.collection("exercise")
                 .document(item.idExercise)
@@ -73,15 +75,58 @@ class ExerciseDataSourceImp (
                     val messengerErro = "DeleteExercise ${it.message.toString()}"
                     trySend(error(messengerErro))
                 }
-            awaitClose{
+            awaitClose {
                 close()
             }
         }.flowOn(dispatcher)
     }
 
-//    fun updateEntregaSimples(entrega: EntregaSimples): Flow<EntregaSimples> {
-//        return this.addEntregaSimples(entrega)
-//    }
+    fun insert(item: Exercise): Flow<Exercise> {
+        return flow {
+            try {
+                var exercise = Exercise()
+                var messengerErro = ""
 
+                autenticacaFirestore.collection("exercise")
+                    .add(item)
+                    .addOnFailureListener {
+                        messengerErro = it.message.toString()
+                    }
+                    .addOnCompleteListener {
+                        if (it.isSuccessful) {
 
+                            exercise = item.copy(idExercise = it.result.id)
+
+                        } else {
+                            messengerErro = it.exception.toString()
+                        }
+                    }
+                if (messengerErro.isEmpty())
+                    emit(exercise)
+                else {
+                    emit(error("InsertExercise_1" + messengerErro))
+                }
+
+            } catch (e: Exception) {
+                emit(error("InsertExercise_1 ${e.message.toString()}"))
+            }
+        }.flowOn(dispatcher)
+    }
+    override fun update(item: Exercise): Flow<Exercise> {
+        return callbackFlow {
+            autenticacaFirestore.collection("exercise")
+                .document(item.idExercise)
+                .set(item)
+                .addOnSuccessListener { result ->
+                    trySend(item)
+                }
+                .addOnFailureListener {
+                    val messengerErro = "DeleteExercise ${it.message.toString()}"
+                    trySend(error(messengerErro))
+                }
+            awaitClose {
+                close()
+            }
+        }.flowOn(dispatcher)
+    }
 }
