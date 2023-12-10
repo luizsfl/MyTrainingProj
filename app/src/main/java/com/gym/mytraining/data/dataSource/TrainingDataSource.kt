@@ -51,18 +51,17 @@ class TraningDataSourceImp (
         return flow {
             try {
 
-                var messengerErro = ""
-
                 val idUsuario= autenticacao.currentUser?.uid.toString()
-
                 val newTraining = training.copy(idUsuario=idUsuario)
+                var messengerErro = ""
+                var idTraining = ""
 
                 autenticacaFirestore.collection("training")
                     .add(newTraining)
                     .addOnCompleteListener {
                         if (it.isSuccessful) {
                             //create exercicios.
-                            val idTraining = it.result.id
+                            idTraining = it.result.id
 
                             for(exercise in listExercise){
 
@@ -82,14 +81,14 @@ class TraningDataSourceImp (
                     }.addOnFailureListener {
                         messengerErro = it.toString()
                     }
-
-                if(messengerErro.isEmpty()){
-                    emit("training 1") // training
-                }else{
-                    emit(error("training"+messengerErro))
+                // training
+                if(messengerErro.isEmpty())
+                    emit(idTraining)
+                else{
+                    emit(error("InsertTraining_1"+messengerErro))
                 }
             } catch (e: Exception) {
-                emit(error("training"+e.toString()))
+                emit(error("InsertTraining_2"+e.toString()))
             }
         }.flowOn(dispatcher)
     }
@@ -118,7 +117,7 @@ class TraningDataSourceImp (
 
                 }
                 .addOnFailureListener {
-                    val messengerErro = "getEntregaRota ${it.message.toString()}"
+                    val messengerErro = "GetAllTreining ${it.message.toString()}"
                     trySend(error(messengerErro))
                 }
             awaitClose{
@@ -150,7 +149,6 @@ class TraningDataSourceImp (
 //    fun updateEntregaSimples(entrega: EntregaSimples): Flow<EntregaSimples> {
 //        return this.addEntregaSimples(entrega)
 //    }
-
 
 }
 

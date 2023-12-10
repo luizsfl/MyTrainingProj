@@ -1,5 +1,6 @@
 package com.gym.mytraining.presentation.exercise
 
+import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
 import androidx.fragment.app.Fragment
@@ -7,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -34,6 +36,7 @@ class ExerciseFragment : Fragment() {
     private val viewModel: ExerciseViewModel by viewModel()
     private var training: Training? = null
     private val args = navArgs<ExerciseFragmentArgs>()
+    private lateinit var rotaAdapter: ExerciseAdapter
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -49,7 +52,7 @@ class ExerciseFragment : Fragment() {
 
         binding.txtTitulo.text = titleTraining
 
-        getAllTraining(training!!)
+        getAllExercise(training!!)
 
 //        binding.faNew.setOnClickListener {
 //            val action =  TrainingFragmentDirections.actionTraningFragmentToNewTraningFragment()
@@ -60,16 +63,16 @@ class ExerciseFragment : Fragment() {
             when (viewState) {
                 is ViewStateExercise.Loading -> showLoading(viewState.loading)
                 is ViewStateExercise.SuccessList -> setAdapter(viewState.list)
+                is ViewStateExercise.Success -> success()
                 is ViewStateExercise.Failure -> showErro(viewState.messengerError)
                 else -> {}
             }
         }
 
-
         return root
     }
 
-    private fun getAllTraining(training: Training){
+    private fun getAllExercise(training: Training){
         viewModel.getAll(training)
     }
     //
@@ -105,7 +108,8 @@ class ExerciseFragment : Fragment() {
     }
 
     private fun setAdapter(listResponse: List<Exercise>) {
-        val rotaAdapter = ExerciseAdapter(listResponse)
+
+        rotaAdapter = ExerciseAdapter(listResponse)
 
         if (listResponse.size== 0){
             binding.txtSemEntregas.visibility = View.VISIBLE
@@ -128,7 +132,7 @@ class ExerciseFragment : Fragment() {
         }
 
         rotaAdapter.onItemClickExcluir = {
-            // excluirEntrega(requireContext(),it)
+             deleteExercise(requireContext(),it)
         }
 
 
@@ -136,4 +140,25 @@ class ExerciseFragment : Fragment() {
         showLoading(false)
     }
 
+    private fun deleteExercise(contextScreen : Context,exercise: Exercise){
+
+        val builder = AlertDialog.Builder(contextScreen!!)
+
+        builder.setTitle("Deseja realmente excluir : ${exercise.name}? ")
+
+        builder.setPositiveButton("Sim") { dialog, which ->
+            viewModel.deleteExercise(exercise)
+        }
+
+        builder.setNegativeButton("Não", null)
+
+        builder.create()
+
+        builder.show()
+
+    }
+
+    private fun success(){
+        getAllExercise(training!!)
+    }
 }

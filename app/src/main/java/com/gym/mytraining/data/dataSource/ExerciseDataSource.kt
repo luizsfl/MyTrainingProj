@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.flowOn
 
 interface ExerciseDataSource {
     fun getAllExercise(training: Training): Flow<List<Exercise>>
+    fun delete(exercise: Exercise): Flow<Exercise>
 
 //    fun deleteEntregaSimples(training: Training): Flow<Training>
 //    fun updateEntregaSimples(training: Training): Flow<Training>
@@ -59,26 +60,25 @@ class ExerciseDataSourceImp (
         }.flowOn(dispatcher)
     }
 
-//
-//    fun deleteEntregaSimples(entrega: EntregaSimples): Flow<EntregaSimples> {
-//        return callbackFlow  {
-//
-//            autenticacaFirestore.collection("entregaSimples")
-//                .document(entrega.idDocument)
-//                .delete()
-//                .addOnSuccessListener { result ->
-//                    trySend(entrega)
-//                }
-//                .addOnFailureListener {
-//                    val messengerErro = "deleteEntregaSimples ${it.message.toString()}"
-//                    trySend(error(messengerErro))
-//                }
-//            awaitClose{
-//                close()
-//            }
-//        }.flowOn(dispatcher)
-//    }
-//
+    override fun delete(item: Exercise): Flow<Exercise> {
+        return callbackFlow  {
+
+            autenticacaFirestore.collection("exercise")
+                .document(item.idExercise)
+                .delete()
+                .addOnSuccessListener { result ->
+                    trySend(item)
+                }
+                .addOnFailureListener {
+                    val messengerErro = "DeleteExercise ${it.message.toString()}"
+                    trySend(error(messengerErro))
+                }
+            awaitClose{
+                close()
+            }
+        }.flowOn(dispatcher)
+    }
+
 //    fun updateEntregaSimples(entrega: EntregaSimples): Flow<EntregaSimples> {
 //        return this.addEntregaSimples(entrega)
 //    }

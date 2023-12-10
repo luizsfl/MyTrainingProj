@@ -31,4 +31,16 @@ class ExerciseViewModel(
                 .collect { _viewStateExercise.value = ViewStateExercise.SuccessList(it)}
         }
     }
+
+    fun deleteExercise(exercise: Exercise) {
+        viewModelScope.launch {
+            exerciseInteractor.delete(exercise)
+                .onStart { _viewStateExercise.value = ViewStateExercise.Loading(loading = true) }
+                .catch {
+                    _viewStateExercise.value = ViewStateExercise.Failure(messengerError = it.message.orEmpty())
+                }
+                .collect { _viewStateExercise.value = ViewStateExercise.Success(it)}
+        }
+    }
+
 }

@@ -12,6 +12,7 @@ import com.gym.mytraining.data.repository.TrainingRepository
 import com.gym.mytraining.data.repository.TrainingRepositoryImp
 import com.gym.mytraining.data.repository.UsuarioRepository
 import com.gym.mytraining.data.repository.UsuarioRepositoryImp
+import com.gym.mytraining.domain.useCase.exercise.ExerciseDeleteUseCase
 import com.gym.mytraining.domain.useCase.exercise.ExerciseGetAllUseCase
 import com.gym.mytraining.domain.useCase.exercise.ExerciseInteractor
 import com.gym.mytraining.domain.useCase.exercise.ExerciseInteractorImp
@@ -53,6 +54,7 @@ val useCaseModule = module {
     factory { TrainingInsertUseCase( trainingRepository= get()) }
     factory { TrainingGetAllUseCase( trainingRepository= get()) }
     factory { ExerciseGetAllUseCase( exerciseRepository= get()) }
+    factory { ExerciseDeleteUseCase( exerciseRepository= get()) }
 //    factory { DadosVeiculoGetUseCase(dadosVeiculoRepository = get()) }
 //    factory { EntregaRotaAddUseCase(entregaRotaRepository = get()) }
 //    factory { EntregaRotaGetAllUseCase(entregaRotaRepository = get()) }
@@ -81,6 +83,7 @@ val interactorModule = module {
     factory<ExerciseInteractor> {
         ExerciseInteractorImp(
             exerciseGetAllUseCase = get(),
+            exerciseDeleteUseCase = get(),
         ) }
 
 //    factory<EntregaRotaInteractor> {EntregaRotaInteractorImp(
