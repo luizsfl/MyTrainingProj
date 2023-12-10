@@ -20,6 +20,7 @@ interface ExerciseDataSource {
     fun update(exercise: Exercise): Flow<Exercise>
     fun insert(exercise: Exercise): Flow<Exercise>
 }
+
 class ExerciseDataSourceImp (
     private val autenticacaFirestore: FirebaseFirestore = ConfiguracaoFirebase.getFirebaseFirestore(),
     private val autenticacao: FirebaseAuth = ConfiguracaoFirebase.getFirebaseAutenticacao(),

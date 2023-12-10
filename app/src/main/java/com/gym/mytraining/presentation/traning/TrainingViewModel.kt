@@ -41,4 +41,15 @@ class TrainingViewModel(
         }
     }
 
+    fun deleteTraining(item:Training) {
+        viewModelScope.launch {
+            trainingInteractor.delete(item)
+                .onStart { _viewStateTraining.value = ViewStateTraining.Loading(loading = true) }
+                .catch {
+                    _viewStateTraining.value = ViewStateTraining.Failure(messengerError = it.message.orEmpty())
+                }
+                .collect { _viewStateTraining.value = ViewStateTraining.Success(item.idTraining)}
+        }
+    }
+
 }

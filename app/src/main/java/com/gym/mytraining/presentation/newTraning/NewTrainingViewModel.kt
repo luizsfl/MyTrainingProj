@@ -26,11 +26,11 @@ class NewTrainingViewModel(
                 .catch {
                     _viewStateTraining.value = ViewStateTraining.Failure(messengerError = it.message.orEmpty())
                 }
-                .collect { setLogado(it) }
+                .collect { successoInsert(training.idTraining) }
         }
     }
 
-    private fun setLogado(idTraining:String) {
-        _viewStateTraining.value = ViewStateTraining.Sucess(idTraining)
+    private fun successoInsert(idTraining: String) {
+        _viewStateTraining.value = ViewStateTraining.Success(idTraining)
     }
 }

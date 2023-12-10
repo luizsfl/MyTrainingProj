@@ -7,11 +7,18 @@ import kotlinx.coroutines.flow.Flow
 interface TrainingInteractor {
     fun insert(training: Training,listExercise:List<Exercise>): Flow<String>
     fun getAll(): Flow<List<Training>>
+
+    fun delete(item: Training): Flow<Training>
+
 }
 class TrainingInteractorImp(
     private val trainingInsertUseCase: TrainingInsertUseCase,
     private val trainingGetAllUseCase: TrainingGetAllUseCase,
-) : TrainingInteractor {
+    private val trainingDeleteUseCase: TrainingDeleteUseCase,
+    ) : TrainingInteractor {
     override fun insert(training: Training, listExercise:List<Exercise>) = trainingInsertUseCase.invoke(training,listExercise)
-    override fun getAll()= trainingGetAllUseCase.invoke()
+    override fun getAll() = trainingGetAllUseCase.invoke()
+
+    override fun delete(item: Training) = trainingDeleteUseCase.invoke(item)
+
 }

@@ -2,8 +2,8 @@ package com.programacustofrete.custofrete.data.di
 
 import com.gym.mytraining.data.dataSource.ExerciseDataSource
 import com.gym.mytraining.data.dataSource.ExerciseDataSourceImp
-import com.gym.mytraining.data.dataSource.TraningDataSource
-import com.gym.mytraining.data.dataSource.TraningDataSourceImp
+import com.gym.mytraining.data.dataSource.TrainingDataSource
+import com.gym.mytraining.data.dataSource.TrainingDataSourceImp
 import com.gym.mytraining.data.dataSource.UsuarioDataSource
 import com.gym.mytraining.data.dataSource.UsuarioDataSourceImp
 import com.gym.mytraining.data.repository.ExerciseRepository
@@ -18,6 +18,7 @@ import com.gym.mytraining.domain.useCase.exercise.ExerciseInsertUseCase
 import com.gym.mytraining.domain.useCase.exercise.ExerciseInteractor
 import com.gym.mytraining.domain.useCase.exercise.ExerciseInteractorImp
 import com.gym.mytraining.domain.useCase.exercise.ExerciseUpdateUseCase
+import com.gym.mytraining.domain.useCase.training.TrainingDeleteUseCase
 import com.gym.mytraining.domain.useCase.training.TrainingGetAllUseCase
 import com.gym.mytraining.domain.useCase.training.TrainingInsertUseCase
 import com.gym.mytraining.domain.useCase.training.TrainingInteractor
@@ -36,7 +37,7 @@ import org.koin.dsl.module
 
 val dataSourceModule = module {
     factory<UsuarioDataSource> { UsuarioDataSourceImp() }
-    factory<TraningDataSource> { TraningDataSourceImp() }
+    factory<TrainingDataSource> { TrainingDataSourceImp() }
     factory<ExerciseDataSource> { ExerciseDataSourceImp() }
 }
 
@@ -44,14 +45,16 @@ val repositoryModule = module {
     factory<UsuarioRepository> { UsuarioRepositoryImp(usuarioDataSource = get()) }
     factory<TrainingRepository> { TrainingRepositoryImp( trainingDataSource = get()) }
     factory<ExerciseRepository> { ExerciseRepositoryImp( exerciseDataSource = get()) }
-
 }
 
 val useCaseModule = module {
     factory { UsuarioInsertUseCase(usuarioRepository = get()) }
     factory { UsuarioLogadoUseCase(usuarioRepository = get()) }
+
     factory { TrainingInsertUseCase( trainingRepository= get()) }
     factory { TrainingGetAllUseCase( trainingRepository= get()) }
+    factory { TrainingDeleteUseCase( trainingRepository= get()) }
+
     factory { ExerciseGetAllUseCase( exerciseRepository= get()) }
     factory { ExerciseDeleteUseCase( exerciseRepository= get()) }
     factory { ExerciseUpdateUseCase( exerciseRepository= get()) }
@@ -70,6 +73,7 @@ val interactorModule = module {
         TrainingInteractorImp(
             trainingInsertUseCase = get(),
             trainingGetAllUseCase = get(),
+            trainingDeleteUseCase = get(),
         )
     }
 
