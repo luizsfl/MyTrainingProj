@@ -18,14 +18,13 @@
             >
 
 
-
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/tvTitleExercise"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Novo exercício"
+                android:text="@string/title_screen_exercise_new"
                 android:gravity="center"
-                android:textSize="25dp"
+                android:textSize="@dimen/size_title_20sp"
                 android:textStyle="bold"
                 android:layout_margin="20dp"
                 app:layout_constraintStart_toStartOf="parent"

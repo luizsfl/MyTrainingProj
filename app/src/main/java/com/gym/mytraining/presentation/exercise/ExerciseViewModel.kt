@@ -43,4 +43,14 @@ class ExerciseViewModel(
         }
     }
 
+    fun updateExercise(exercise: Exercise) {
+        viewModelScope.launch {
+            exerciseInteractor.update(exercise)
+                .onStart { _viewStateExercise.value = ViewStateExercise.Loading(loading = true) }
+                .catch {
+                    _viewStateExercise.value = ViewStateExercise.Failure(messengerError = it.message.orEmpty())
+                }
+                .collect { _viewStateExercise.value = ViewStateExercise.Success(it)}
+        }
+    }
 }
