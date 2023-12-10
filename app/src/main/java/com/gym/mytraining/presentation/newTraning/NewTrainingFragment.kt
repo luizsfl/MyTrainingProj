@@ -95,6 +95,17 @@ class NewTrainingFragment : Fragment() {
                         //date = dateTimeStamp,
                     )
                     insertTraining(training, listExercise)
+                }else if (typeScreen == TypeOperation.EDIT) {
+
+                    val dateTimeStamp = Timestamp(System.currentTimeMillis())
+
+                    val training = training!!.copy(
+                        name = txName,
+                        description = txDescription,
+                        //date = dateTimeStamp,
+                        )
+
+                    updateTraining(training, listExercise)
                 }
             }
         }
@@ -172,6 +183,10 @@ class NewTrainingFragment : Fragment() {
 
     private fun insertTraining(training: Training, listExercise: List<Exercise>) {
         viewModel.insert(training, listExercise)
+    }
+
+    private fun updateTraining(training: Training, listExercise: List<Exercise>) {
+        viewModel.update(training, listExercise)
     }
 
 

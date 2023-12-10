@@ -33,4 +33,15 @@ class NewTrainingViewModel(
     private fun successoInsert(idTraining: String) {
         _viewStateTraining.value = ViewStateTraining.Success(idTraining)
     }
+
+    fun update(training: Training,listExercise:List<Exercise>) {
+        viewModelScope.launch {
+            trainingInteractor.update(training,listExercise)
+                .onStart { _viewStateTraining.value = ViewStateTraining.Loading(loading = true) }
+                .catch {
+                    _viewStateTraining.value = ViewStateTraining.Failure(messengerError = it.message.orEmpty())
+                }
+                .collect { successoInsert(training.idTraining) }
+        }
+    }
 }

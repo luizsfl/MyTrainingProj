@@ -19,11 +19,13 @@ interface TrainingDataSource {
 
     fun delete(item: Training): Flow<Training>
 
+    fun update(training: Training,listExercise:List<Exercise>): Flow<String>
+
 }
 class TrainingDataSourceImp (
     private val autenticacaFirestore: FirebaseFirestore = ConfiguracaoFirebase.getFirebaseFirestore(),
     private val autenticacao: FirebaseAuth = ConfiguracaoFirebase.getFirebaseAutenticacao(),
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ):TrainingDataSource {
 
     override fun insert(training: Training,listExercise:List<Exercise>): Flow<String> {
@@ -125,5 +127,65 @@ class TrainingDataSourceImp (
         }.flowOn(dispatcher)
     }
 
+    override fun update(item: Training,listExercise:List<Exercise>): Flow<String> {
+        return flow {
+            try {
+                var messengerErro = ""
+                var idTraining = ""
+
+                autenticacaFirestore.collection("training")
+                    .document(item.idTraining)
+                    .set(item)
+                    .addOnCompleteListener {
+                        if (it.isSuccessful) {
+
+                            for(exercise in listExercise){
+
+                                if(exercise.idExercise.isNullOrEmpty()){
+                                    if(!exercise.deleted){
+                                        val newExercise = exercise.copy(idTraining=item.idTraining)
+                                        autenticacaFirestore.collection("exercise")
+                                            .add(newExercise)
+                                            .addOnFailureListener {
+                                                messengerErro = it.message.toString()
+                                            }
+                                    }
+                                }else{
+                                    if(exercise.deleted){
+                                        autenticacaFirestore.collection("exercise")
+                                            .document(exercise.idExercise)
+                                            .delete()
+                                            .addOnFailureListener {
+                                                messengerErro = it.message.toString()
+                                            }
+                                    }else{
+                                        autenticacaFirestore.collection("exercise")
+                                            .document(exercise.idExercise)
+                                            .set(exercise)
+                                            .addOnFailureListener {
+                                                messengerErro = it.message.toString()
+                                            }
+                                    }
+                                }
+
+                            }
+
+                        }else{
+                            messengerErro = it.exception.toString()
+                        }
+
+                    }.addOnFailureListener {
+                        messengerErro = it.toString()
+                    }
+                if(messengerErro.isEmpty())
+                    emit(idTraining)
+                else{
+                    emit(error("UpdateTraining_1"+messengerErro))
+                }
+            } catch (e: Exception) {
+                emit(error("UpdateTraining_2"+e.toString()))
+            }
+        }.flowOn(dispatcher)
+    }
 }
 

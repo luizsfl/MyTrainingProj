@@ -9,6 +9,7 @@ interface TrainingRepository {
     fun insert(training: Training,listExercise:List<Exercise>): Flow<String>
     fun getAllTraining():Flow<List<Training>>
     fun delete(item: Training): Flow<Training>
+    fun update(training: Training,listExercise:List<Exercise>): Flow<String>
 
 }
 
@@ -18,4 +19,6 @@ class TrainingRepositoryImp(
     override fun insert(training: Training,listExercise:List<Exercise>) = trainingDataSource.insert(training,listExercise)
     override fun getAllTraining() = trainingDataSource.getAllTraining()
     override fun delete(item: Training) = trainingDataSource.delete(item)
+    override fun update(training: Training,listExercise:List<Exercise>) = trainingDataSource.update(training,listExercise)
+
 }
