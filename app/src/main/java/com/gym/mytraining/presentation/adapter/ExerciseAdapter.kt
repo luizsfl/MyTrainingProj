@@ -1,6 +1,7 @@
 package com.gym.mytraining.presentation.adapter
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -13,8 +14,8 @@ class ExerciseAdapter(private val dataSet: List<Exercise>) :
     RecyclerView.Adapter<ExerciseAdapter.ViewHolder>() {
 
     var onItemClick : ((Exercise)-> Unit)? = null
-    var onItemClickExcluir : ((Exercise)-> Unit)? = null
-    var onItemClickEditar : ((Exercise)-> Unit)? = null
+    var onItemClickExcluir : ((Exercise,Int)-> Unit)? = null
+    var onItemClickEditar : ((Exercise,Int)-> Unit)? = null
     var onItemClickVisualizar : ((Exercise)-> Unit)? = null
 
     class ViewHolder(val binding: ItemExerciseBinding, val context: Context) : RecyclerView.ViewHolder(binding.root) {
@@ -22,7 +23,10 @@ class ExerciseAdapter(private val dataSet: List<Exercise>) :
         fun bind(item: Exercise){
             binding.title.text = item.name
             binding.observation.text = item.observation
-           // binding.date.text = item.date.toString()
+            // binding.date.text = item.date.toString()
+            if(item.deleted){
+                binding.container1.setBackgroundColor(Color.DKGRAY)
+            }
         }
     }
 
@@ -44,11 +48,11 @@ class ExerciseAdapter(private val dataSet: List<Exercise>) :
         }
 
         viewHolder.binding.ivExcluir.setOnClickListener {
-            onItemClickExcluir?.invoke(dataSet[position])
+            onItemClickExcluir?.invoke(dataSet[position],position)
         }
 
         viewHolder.binding.ivEditar.setOnClickListener {
-            onItemClickEditar?.invoke(dataSet[position])
+            onItemClickEditar?.invoke(dataSet[position],position)
         }
 
     }

@@ -21,17 +21,19 @@ import com.gym.mytraining.databinding.FragmentNewTraningBinding
 import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
 import com.gym.mytraining.presentation.adapter.ExerciseAdapter
+import com.gym.mytraining.presentation.exercise.ExerciseViewModel
 
 import com.gym.mytraining.presentation.traning.TrainingFragmentDirections
+import com.gym.mytraining.presentation.viewState.ViewStateExercise
 import com.gym.mytraining.presentation.viewState.ViewStateTraining
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.sql.Timestamp
 class NewTrainingFragment : Fragment() {
 
-
     private var _binding: FragmentNewTraningBinding? = null
     private val binding get() = _binding!!
     private val viewModel: NewTrainingViewModel by viewModel()
+    private val viewModelExercise: ExerciseViewModel by viewModel()
     private var training: Training? = null
     private val args = navArgs<NewTrainingFragmentArgs>()
     private lateinit var typeScreen: TypeOperation
@@ -39,7 +41,7 @@ class NewTrainingFragment : Fragment() {
     private val listExercise = mutableListOf<Exercise>()
 
     enum class TypeOperation {
-        EDIT, VIEW, INSERT
+        EDIT, INSERT
     }
 
     override fun onCreateView(
@@ -52,27 +54,35 @@ class NewTrainingFragment : Fragment() {
         training = args.value.training
         typeScreen = args.value.typeScreen
 
-        training?.let {
-            if (typeScreen == TypeOperation.EDIT) {
+        if (typeScreen == TypeOperation.INSERT) {
+            binding.btInsert.setText(getString(R.string.bt_new_training))
+        }else if (typeScreen == TypeOperation.EDIT) {
+            training?.let {
+                observeExercise()
                 setDadosTela(it)
+                viewModelExercise.getAll(training!!)
                 binding.btInsert.setText(getString(R.string.bt_edit_training))
                 binding.tvTitleTraining.setText(getString(R.string.bt_edit_training))
-            } else if (typeScreen == TypeOperation.INSERT) {
-                setDadosTela(it, true)
-                binding.btInsert.setText(getString(R.string.bt_new_training))
             }
         }
 
         (activity as AppCompatActivity).supportActionBar?.hide()
 
+        listerners()
 
+        observeTraining()
+
+        return root
+    }
+
+    private fun listerners() {
         binding.btInsert.setOnClickListener {
 
             val txName = binding.tiNome.text.toString()
 
-            if(txName.isNullOrEmpty()) {
+            if (txName.isNullOrEmpty()) {
                 binding.tiNome.error = getString(R.string.training_name_empty)
-            }else{
+            } else {
                 val txDescription = binding.tiDescription.text.toString()
 
                 if (typeScreen == TypeOperation.INSERT) {
@@ -89,7 +99,6 @@ class NewTrainingFragment : Fragment() {
             }
         }
 
-
         binding.tvInsertExercise.setOnClickListener {
             insertExercise(requireContext())
         }
@@ -97,20 +106,35 @@ class NewTrainingFragment : Fragment() {
         binding.ivVoltar.setOnClickListener {
             findNavController().navigateUp()
         }
+    }
 
+    private fun observeTraining() {
         viewModel.viewStateTraining.observe(viewLifecycleOwner) { viewState ->
             when (viewState) {
                 is ViewStateTraining.Loading -> showLoading(viewState.loading)
-                is ViewStateTraining.Success ->  success()
+                is ViewStateTraining.Success -> success()
                 is ViewStateTraining.Failure -> showErro(viewState.messengerError)
                 else -> {}
             }
         }
-
-
-        return root
     }
 
+    private fun observeExercise() {
+        viewModelExercise.viewStateExercise.observe(viewLifecycleOwner) { viewState ->
+            when (viewState) {
+                is ViewStateExercise.Loading -> showLoading(viewState.loading)
+                is ViewStateExercise.SuccessList ->successListExercise(viewState.list)
+                is ViewStateExercise.Success -> success()
+                is ViewStateExercise.Failure -> showErro(viewState.messengerError)
+                else -> {}
+            }
+        }
+    }
+
+    private fun successListExercise(listResponse:List<Exercise>) {
+        listExercise.addAll(listResponse)
+        setAdapter(listResponse)
+    }
     private fun showLoading(isLoading: Boolean) {
         //   binding.progressBar.isVisible = isLoading
     }
@@ -223,13 +247,15 @@ class NewTrainingFragment : Fragment() {
 //            findNavController().navigate(action)
         }
 
-        adapter.onItemClickEditar = {
+        adapter.onItemClickEditar = { exercise, _ ->
 //            val action =  ListaEntregaRotaFragmentDirections.actionListaEntregaRotaFragmentToDadosVeiculoFragment(2,it)
 //            findNavController().navigate(action)
         }
 
-        adapter.onItemClickExcluir = {
-            // excluirEntrega(requireContext(),it)
+        adapter.onItemClickExcluir = { _, position ->
+            val itemDeleted = listExercise.get(position).copy(deleted = !listExercise.get(position).deleted)
+            listExercise.set(position,itemDeleted)
+            setAdapter(listExercise)
         }
 
         binding.recyclerviewExercise.adapter = adapter
