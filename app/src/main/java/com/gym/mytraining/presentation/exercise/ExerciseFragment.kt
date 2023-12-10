@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
@@ -59,6 +60,10 @@ class ExerciseFragment : Fragment() {
             changeExercise(requireContext(),newExercise,TypeOperation.INSERT)
         }
 
+        binding.ivVoltar.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
         viewModel.viewStateExercise.observe(viewLifecycleOwner) { viewState ->
             when (viewState) {
                 is ViewStateExercise.Loading -> showLoading(viewState.loading)
@@ -103,11 +108,11 @@ class ExerciseFragment : Fragment() {
             binding.txtSemEntregas.visibility = View.GONE
         }
 
-        rotaAdapter.onItemClick = {
-            changeExercise(requireContext(),it,TypeOperation.VIEW)
+        rotaAdapter.onItemClick = {exercise, _ ->
+            changeExercise(requireContext(),exercise,TypeOperation.VIEW)
         }
-        rotaAdapter.onItemClickVisualizar = {
-            changeExercise(requireContext(),it,TypeOperation.VIEW)
+        rotaAdapter.onItemClickVisualizar = {exercise, _ ->
+            changeExercise(requireContext(),exercise,TypeOperation.VIEW)
         }
 
 

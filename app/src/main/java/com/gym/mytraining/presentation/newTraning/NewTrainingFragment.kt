@@ -9,8 +9,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.BaseTransientBottomBar
@@ -21,6 +23,7 @@ import com.gym.mytraining.databinding.FragmentNewTraningBinding
 import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
 import com.gym.mytraining.presentation.adapter.ExerciseAdapter
+import com.gym.mytraining.presentation.exercise.ExerciseFragment
 import com.gym.mytraining.presentation.exercise.ExerciseViewModel
 
 import com.gym.mytraining.presentation.traning.TrainingFragmentDirections
@@ -111,7 +114,7 @@ class NewTrainingFragment : Fragment() {
         }
 
         binding.tvInsertExercise.setOnClickListener {
-            insertExercise(requireContext())
+            changeExercise(contextTela =  requireContext(),exercise = Exercise(),viewExercise = ExerciseFragment.TypeOperation.INSERT, position = -1)
         }
 
         binding.ivVoltar.setOnClickListener {
@@ -146,8 +149,10 @@ class NewTrainingFragment : Fragment() {
         listExercise.addAll(listResponse)
         setAdapter(listResponse)
     }
+
     private fun showLoading(isLoading: Boolean) {
-        //   binding.progressBar.isVisible = isLoading
+        binding.progressBar.isVisible = isLoading
+        binding.btInsert.isVisible = !isLoading
     }
 
     private fun showErro(text: String) {
@@ -199,72 +204,18 @@ class NewTrainingFragment : Fragment() {
 
     }
 
-    private fun insertExercise(contextTela: Context) {
-
-        val builder = AlertDialog.Builder(contextTela!!)
-        val view: View
-        val inflater =
-            contextTela!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        view = inflater.inflate(R.layout.layout_insert_exercise, null)
-
-
-        builder.setView(view)
-
-        builder.setPositiveButton(getString(R.string.ok),) { dialog, which -> }
-
-        builder.setNegativeButton(getString(R.string.bt_cancel_dialog), null)
-
-        val dialog = builder.create()
-
-        dialog.setOnShowListener {
-            val button = dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE)
-            button.setOnClickListener {
-
-                val tiName = view.findViewById<TextInputEditText>(R.id.tiNomeExercise)
-                val tiObservation = view.findViewById<TextInputEditText>(R.id.tiObservationExercise)
-
-                if(tiName.text.isNullOrEmpty()){
-                    val erro = getString(R.string.training_name_empty)
-                    tiName.error = erro
-                }else{
-
-                    val observation =  if (tiObservation.text.toString().isEmpty()) "" else tiObservation.text.toString()
-
-                    val exercise = Exercise(
-                        name = tiName.text.toString(),
-                       //image = Uri.parse(""),
-                        observation = observation
-                    )
-
-                    listExercise.add(exercise)
-
-                    setAdapter(listExercise)
-
-                    dialog.dismiss()
-
-                }
-            }
-        }
-
-        dialog.show()
-
-    }
-
     private fun setAdapter(listResponse: List<Exercise>) {
         val adapter = ExerciseAdapter(listResponse)
 
-        adapter.onItemClick = {
-//            val action =  TrainingFragmentDirections.actionTraningFragmentToExerciseFragment(it)
-//            findNavController().navigate(action)
+        adapter.onItemClick = { exercise, position ->
+            changeExercise(requireContext(),exercise, ExerciseFragment.TypeOperation.VIEW,position)
         }
-        adapter.onItemClickVisualizar = {
-//            val action =  ListaEntregaRotaFragmentDirections.actionListaEntregaRotaFragmentToDadosRotaFragment2(it)
-//            findNavController().navigate(action)
+        adapter.onItemClickVisualizar = { exercise, position ->
+            changeExercise(requireContext(),exercise, ExerciseFragment.TypeOperation.VIEW,position)
         }
 
-        adapter.onItemClickEditar = { exercise, _ ->
-//            val action =  ListaEntregaRotaFragmentDirections.actionListaEntregaRotaFragmentToDadosVeiculoFragment(2,it)
-//            findNavController().navigate(action)
+        adapter.onItemClickEditar = { exercise, position ->
+            changeExercise(requireContext(),exercise, ExerciseFragment.TypeOperation.EDIT,position)
         }
 
         adapter.onItemClickExcluir = { _, position ->
@@ -277,4 +228,82 @@ class NewTrainingFragment : Fragment() {
         showLoading(false)
     }
 
+
+    private fun changeExercise(contextTela: Context,exercise: Exercise,viewExercise: ExerciseFragment.TypeOperation,position:Int) {
+
+        val builder = AlertDialog.Builder(contextTela!!)
+        val view: View
+        val inflater =
+            contextTela!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        view = inflater.inflate(R.layout.layout_insert_exercise, null)
+
+        val tiTitleScreenExercise = view.findViewById<TextView>(R.id.tvTitleExercise)
+        val tiName = view.findViewById<TextInputEditText>(R.id.tiNomeExercise)
+        val tiObservation = view.findViewById<TextInputEditText>(R.id.tiObservationExercise)
+
+        tiName.setText(exercise.name)
+
+        if(viewExercise == ExerciseFragment.TypeOperation.VIEW){
+            tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_view)
+            tiName.isEnabled = false
+            tiObservation.isEnabled = false
+        }else if(viewExercise == ExerciseFragment.TypeOperation.EDIT) {
+            val observationView =  if (exercise.observation.isEmpty()) " " else exercise.observation
+            tiObservation.setText(observationView)
+            tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_update)
+        }else if(viewExercise == ExerciseFragment.TypeOperation.INSERT) {
+            tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_new)
+        }
+
+        builder.setView(view)
+
+        builder.setPositiveButton("OK") { dialog, which -> }
+
+        builder.setNegativeButton("Cancel", null)
+
+        val dialog = builder.create()
+
+        dialog.setOnShowListener {
+            val button = dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE)
+            button.setOnClickListener {
+
+                if(tiName.text.isNullOrEmpty()){
+                    val errorExerciseEmpty = getString(R.string.exercise_name_empty)
+                    tiName.error = errorExerciseEmpty
+                }else{
+                    val observation =  if (tiObservation.text.toString().isEmpty()) "" else tiObservation.text.toString()
+                    val updExercise = exercise.copy(
+                        name = tiName.text.toString(),
+                        observation = observation,
+                        //image = Uri.parse(""),
+                    )
+
+                    if (viewExercise == ExerciseFragment.TypeOperation.EDIT){
+                        //viewModel.updateExercise(updExercise)
+                        listExercise.set(position,updExercise)
+                        setAdapter(listExercise)
+                    }else if (viewExercise == ExerciseFragment.TypeOperation.INSERT){
+
+                        val observation =  if (tiObservation.text.toString().isEmpty()) "" else tiObservation.text.toString()
+
+                        val exercise = Exercise(
+                            name = tiName.text.toString(),
+                            //image = Uri.parse(""),
+                            observation = observation
+                        )
+
+                        listExercise.add(exercise)
+
+                        setAdapter(listExercise)
+
+                    }
+
+                    dialog.dismiss()
+                }
+            }
+        }
+
+        dialog.show()
+    }
 }
+
