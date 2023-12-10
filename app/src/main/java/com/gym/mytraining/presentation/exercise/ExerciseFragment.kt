@@ -32,6 +32,10 @@ class ExerciseFragment : Fragment() {
     private var training: Training? = null
     private val args = navArgs<ExerciseFragmentArgs>()
     private lateinit var rotaAdapter: ExerciseAdapter
+    enum class TypeOperation {
+        EDIT, VIEW, DELET
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -117,12 +121,11 @@ class ExerciseFragment : Fragment() {
 //            findNavController().navigate(action)
         }
         rotaAdapter.onItemClickVisualizar = {
-//            val action =  ListaEntregaRotaFragmentDirections.actionListaEntregaRotaFragmentToDadosRotaFragment2(it)
-//            findNavController().navigate(action)
+            changeExercise(requireContext(),it,TypeOperation.VIEW)
         }
 
         rotaAdapter.onItemClickEditar = {
-            updateExercise(requireContext(),it)
+            changeExercise(requireContext(),it,TypeOperation.EDIT)
         }
 
         rotaAdapter.onItemClickExcluir = {
@@ -137,7 +140,7 @@ class ExerciseFragment : Fragment() {
 
         val builder = AlertDialog.Builder(contextScreen!!)
 
-        builder.setTitle("Deseja realmente excluir : ${exercise.name}? ")
+        builder.setTitle(getString(R.string.confirm_delet_exercise, exercise.name))
 
         builder.setPositiveButton("Sim") { dialog, which ->
                 viewModel.deleteExercise(exercise)
@@ -157,7 +160,7 @@ class ExerciseFragment : Fragment() {
     }
 
 
-    private fun updateExercise(contextTela: Context,exercise: Exercise) {
+    private fun changeExercise(contextTela: Context,exercise: Exercise,viewExercise:TypeOperation) {
 
         val builder = AlertDialog.Builder(contextTela!!)
         val view: View
@@ -169,10 +172,16 @@ class ExerciseFragment : Fragment() {
         val tiName = view.findViewById<TextInputEditText>(R.id.tiNomeExercise)
         val tiObservation = view.findViewById<TextInputEditText>(R.id.tiObservationExercise)
 
-        tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_update)
-
         tiName.setText(exercise.name)
         tiObservation.setText(exercise.observation)
+
+        if(viewExercise == TypeOperation.VIEW){
+            tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_view)
+            tiName.isEnabled = false
+            tiObservation.isEnabled = false
+        }else if(viewExercise == TypeOperation.EDIT) {
+            tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_update)
+        }
 
         builder.setView(view)
 
@@ -186,23 +195,21 @@ class ExerciseFragment : Fragment() {
             val button = dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE)
             button.setOnClickListener {
 
-
-
-
                 if(tiName.text.isNullOrEmpty()){
                     val errorExerciseEmpty = getString(R.string.exercise_name_empty)
                     tiName.error = errorExerciseEmpty
                 }else{
 
-                    val observation =  if (tiObservation.text.toString().isEmpty()) "" else tiObservation.text.toString()
+                    if (viewExercise == TypeOperation.EDIT){
+                        val observation =  if (tiObservation.text.toString().isEmpty()) "" else tiObservation.text.toString()
 
-                    val updExercise = exercise.copy(
-                        name = tiName.text.toString(),
-                        observation = observation,
-                        //image = Uri.parse(""),
-                    )
-
-                    viewModel.updateExercise(updExercise)
+                        val updExercise = exercise.copy(
+                            name = tiName.text.toString(),
+                            observation = observation,
+                            //image = Uri.parse(""),
+                        )
+                        viewModel.updateExercise(updExercise)
+                    }
 
                     dialog.dismiss()
 
