@@ -2,16 +2,13 @@ package com.gym.mytraining.presentation.newTraning
 
 import android.content.Context
 import android.content.DialogInterface
-import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.findNavController
@@ -23,7 +20,9 @@ import com.gym.mytraining.R
 import com.gym.mytraining.databinding.FragmentNewTraningBinding
 import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
-import com.gym.mytraining.presentation.newLogin.NewLoginFragmentDirections
+import com.gym.mytraining.presentation.adapter.ExerciseAdapter
+
+import com.gym.mytraining.presentation.traning.TrainingFragmentDirections
 import com.gym.mytraining.presentation.viewState.ViewStateTraining
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.sql.Timestamp
@@ -196,14 +195,14 @@ class NewTrainingFragment : Fragment() {
                     val observation =  if (tiObservation.text.toString().isEmpty()) "" else tiObservation.text.toString()
 
                     val exercise = Exercise(
-                        "",
-                        "",
                         name = tiName.text.toString(),
-                        image = Uri.parse(""),
+                       //image = Uri.parse(""),
                         observation = observation
                     )
 
                     listExercise.add(exercise)
+
+                    setAdapter(listExercise)
 
                     dialog.dismiss()
 
@@ -213,6 +212,31 @@ class NewTrainingFragment : Fragment() {
 
         dialog.show()
 
+    }
+
+    private fun setAdapter(listResponse: List<Exercise>) {
+        val adapter = ExerciseAdapter(listResponse)
+
+        adapter.onItemClick = {
+//            val action =  TrainingFragmentDirections.actionTraningFragmentToExerciseFragment(it)
+//            findNavController().navigate(action)
+        }
+        adapter.onItemClickVisualizar = {
+//            val action =  ListaEntregaRotaFragmentDirections.actionListaEntregaRotaFragmentToDadosRotaFragment2(it)
+//            findNavController().navigate(action)
+        }
+
+        adapter.onItemClickEditar = {
+//            val action =  ListaEntregaRotaFragmentDirections.actionListaEntregaRotaFragmentToDadosVeiculoFragment(2,it)
+//            findNavController().navigate(action)
+        }
+
+        adapter.onItemClickExcluir = {
+            // excluirEntrega(requireContext(),it)
+        }
+
+        binding.recyclerviewExercise.adapter = adapter
+        showLoading(false)
     }
 
 }

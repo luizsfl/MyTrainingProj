@@ -42,47 +42,27 @@
                     app:layout_constraintRight_toRightOf="parent"
                     >
                     <TextView
-                        android:id="@+id/title_rota"
+                        android:id="@+id/title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Título da Live"
+                        android:text="Nome Treino"
                         android:textColor="#000"
                         android:textSize="19sp" />
                     <TextView
-                        android:id="@+id/tiTipoRota"
+                        android:id="@+id/observation"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Título da Live"
+                        android:text="Descrição treino"
                         android:textColor="#000"
                         android:textSize="19sp" />
                     <TextView
-                        android:id="@+id/tiValorEntrega"
+                        android:id="@+id/date"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Título da Live"
+                        android:text="data"
                         android:textColor="#000"
                         android:textSize="19sp" />
-                    <TextView
-                        android:id="@+id/tiValorCalculado"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Título da Live"
-                        android:textColor="#000"
-                        android:textSize="19sp" />
-                    <TextView
-                        android:id="@+id/tiQtdKilometragem"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Título da Live"
-                        android:textColor="#000"
-                        android:textSize="19sp" />
-                    <TextView
-                        android:id="@+id/ti_status_entrega"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Status:Pendente"
-                        android:textColor="#000"
-                        android:textSize="19sp" />
+
                 </LinearLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout

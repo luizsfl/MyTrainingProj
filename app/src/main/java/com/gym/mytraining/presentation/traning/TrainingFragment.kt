@@ -1,23 +1,16 @@
 package com.gym.mytraining.presentation.traning
 
-import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.FrameLayout
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputEditText
-import com.gym.mytraining.R
 import com.gym.mytraining.databinding.FragmentTraningBinding
 import com.gym.mytraining.domain.model.Training
 import com.gym.mytraining.presentation.adapter.TrainingAdapter
@@ -54,7 +47,6 @@ class TrainingFragment : Fragment() {
                 else -> {}
             }
         }
-
 
         return root
     }
@@ -106,8 +98,8 @@ class TrainingFragment : Fragment() {
         }
 
         rotaAdapter.onItemClick = {
-//            val action =  ListaEntregaRotaFragmentDirections.actionListaEntregaRotaFragmentToDadosRotaFragment2(it)
-//            findNavController().navigate(action)
+            val action =  TrainingFragmentDirections.actionTraningFragmentToExerciseFragment(it)
+            findNavController().navigate(action)
         }
         rotaAdapter.onItemClickVisualizar = {
 //            val action =  ListaEntregaRotaFragmentDirections.actionListaEntregaRotaFragmentToDadosRotaFragment2(it)
