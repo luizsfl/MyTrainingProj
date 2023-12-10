@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "182855773129",
+    "project_id": "mytraining-6ca4c",
+    "storage_bucket": "mytraining-6ca4c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:182855773129:android:b78ec6787e649fed609618",
+        "android_client_info": {
+          "package_name": "com.gym.mytraining"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9rudUUimb7SFtt7BnCxG9AXEhoOruSss"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

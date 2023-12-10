@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_principal"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.gym.mytraining.presentation.login.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment_to_newLoginFragment"
+            app:destination="@id/newLoginFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_traningFragment"
+            app:destination="@id/traningFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/newLoginFragment"
+        android:name="com.gym.mytraining.presentation.newLogin.NewLoginFragment"
+        android:label="NewLoginFragment"
+        tools:layout="@layout/fragment_new_login"
+        >
+        <action
+            android:id="@+id/action_newLoginFragment_to_traningFragment"
+            app:destination="@id/traningFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/traningFragment"
+        android:name="com.gym.mytraining.presentation.traning.TrainingFragment"
+        android:label="fragment_traning"
+        tools:layout="@layout/fragment_traning" >
+        <action
+            android:id="@+id/action_traningFragment_to_newTraningFragment"
+            app:destination="@id/newTraningFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/newTraningFragment"
+        android:name="com.gym.mytraining.presentation.newTraning.NewTrainingFragment"
+        android:label="fragment_new_traning"
+        tools:layout="@layout/fragment_new_traning" >
+        <argument
+            android:name="training"
+            app:argType="com.gym.mytraining.domain.model.Training"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="typeScreen"
+            android:defaultValue="0"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_newTraningFragment_to_traningFragment"
+            app:destination="@id/traningFragment" />
+    </fragment>
+</navigation>
