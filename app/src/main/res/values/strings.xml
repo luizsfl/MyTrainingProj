@@ -11,5 +11,7 @@
     <string name="title_todas_os_seus_treinos">Todas os meus treinos</string>
     <string name="title_screen_exercise_new">Novo Exercício</string>
     <string name="title_screen_exercise_update">Editar Exercício</string>
+    <string name="title_screen_exercise_view">Visualizar Exercício</string>
     <string name="exercise_name_empty">Digite o nome do exercício</string>
+    <string name="confirm_delet_exercise">"Deseja realmente excluir : %1$s? "</string>
 </resources>
