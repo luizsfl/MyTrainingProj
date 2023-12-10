@@ -3,29 +3,24 @@ package com.gym.mytraining.presentation.exercise
 import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
 import com.gym.mytraining.R
 import com.gym.mytraining.databinding.FragmentExerciseBinding
-import com.gym.mytraining.databinding.FragmentTraningBinding
 import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
 import com.gym.mytraining.presentation.adapter.ExerciseAdapter
-import com.gym.mytraining.presentation.adapter.TrainingAdapter
-import com.gym.mytraining.presentation.newTraning.NewTrainingFragmentArgs
-import com.gym.mytraining.presentation.traning.TrainingFragmentDirections
-import com.gym.mytraining.presentation.traning.TrainingViewModel
 import com.gym.mytraining.presentation.viewState.ViewStateExercise
-import com.gym.mytraining.presentation.viewState.ViewStateTraining
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -127,27 +122,25 @@ class ExerciseFragment : Fragment() {
         }
 
         rotaAdapter.onItemClickEditar = {
-//            val action =  ListaEntregaRotaFragmentDirections.actionListaEntregaRotaFragmentToDadosVeiculoFragment(2,it)
-//            findNavController().navigate(action)
+            updateExercise(requireContext(),it)
         }
 
         rotaAdapter.onItemClickExcluir = {
-             deleteExercise(requireContext(),it)
+            deletExercise(requireContext(),it)
         }
-
 
         binding.recyclerview.adapter = rotaAdapter
         showLoading(false)
     }
 
-    private fun deleteExercise(contextScreen : Context,exercise: Exercise){
+    private fun deletExercise(contextScreen : Context,exercise: Exercise){
 
         val builder = AlertDialog.Builder(contextScreen!!)
 
         builder.setTitle("Deseja realmente excluir : ${exercise.name}? ")
 
         builder.setPositiveButton("Sim") { dialog, which ->
-            viewModel.deleteExercise(exercise)
+                viewModel.deleteExercise(exercise)
         }
 
         builder.setNegativeButton("Não", null)
@@ -158,7 +151,66 @@ class ExerciseFragment : Fragment() {
 
     }
 
+
     private fun success(){
         getAllExercise(training!!)
+    }
+
+
+    private fun updateExercise(contextTela: Context,exercise: Exercise) {
+
+        val builder = AlertDialog.Builder(contextTela!!)
+        val view: View
+        val inflater =
+            contextTela!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        view = inflater.inflate(R.layout.layout_insert_exercise, null)
+
+        val tiTitleScreenExercise = view.findViewById<TextView>(R.id.tvTitleExercise)
+        val tiName = view.findViewById<TextInputEditText>(R.id.tiNomeExercise)
+        val tiObservation = view.findViewById<TextInputEditText>(R.id.tiObservationExercise)
+
+        tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_update)
+
+        tiName.setText(exercise.name)
+        tiObservation.setText(exercise.observation)
+
+        builder.setView(view)
+
+        builder.setPositiveButton("OK") { dialog, which -> }
+
+        builder.setNegativeButton("Cancel", null)
+
+        val dialog = builder.create()
+
+        dialog.setOnShowListener {
+            val button = dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE)
+            button.setOnClickListener {
+
+
+
+
+                if(tiName.text.isNullOrEmpty()){
+                    val errorExerciseEmpty = getString(R.string.exercise_name_empty)
+                    tiName.error = errorExerciseEmpty
+                }else{
+
+                    val observation =  if (tiObservation.text.toString().isEmpty()) "" else tiObservation.text.toString()
+
+                    val updExercise = exercise.copy(
+                        name = tiName.text.toString(),
+                        observation = observation,
+                        //image = Uri.parse(""),
+                    )
+
+                    viewModel.updateExercise(updExercise)
+
+                    dialog.dismiss()
+
+                }
+            }
+        }
+
+        dialog.show()
+
     }
 }
