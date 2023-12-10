@@ -29,11 +29,12 @@ class ExerciseFragment : Fragment() {
     private var _binding: FragmentExerciseBinding? = null
     private val binding get() = _binding!!
     private val viewModel: ExerciseViewModel by viewModel()
-    private var training: Training? = null
     private val args = navArgs<ExerciseFragmentArgs>()
+    private var training: Training ? = null
+
     private lateinit var rotaAdapter: ExerciseAdapter
     enum class TypeOperation {
-        EDIT, VIEW, DELET
+        EDIT, VIEW, INSERT
     }
 
     override fun onCreateView(
@@ -53,10 +54,11 @@ class ExerciseFragment : Fragment() {
 
         getAllExercise(training!!)
 
-//        binding.faNew.setOnClickListener {
-//            val action =  TrainingFragmentDirections.actionTraningFragmentToNewTraningFragment()
-//            findNavController().navigate(action)
-//        }
+        binding.faNewExercise.setOnClickListener {
+            val newExercise = Exercise().copy(idTraining = training!!.idTraining)
+
+            changeExercise(requireContext(),newExercise,TypeOperation.INSERT)
+        }
 
         viewModel.viewStateExercise.observe(viewLifecycleOwner) { viewState ->
             when (viewState) {
@@ -74,21 +76,7 @@ class ExerciseFragment : Fragment() {
     private fun getAllExercise(training: Training){
         viewModel.getAll(training)
     }
-    //
-//    private fun showSucess(entregaSimples: EntregaSimples){
-//        val builder = android.app.AlertDialog.Builder(requireContext())
-//        with(builder)
-//        {
-//            setTitle("Entrega simples criada com sucesso!!")
-//            setCancelable(false) //não fecha quando clicam fora do dialog
-//            setPositiveButton("OK") { dialog, which ->
-//                val action =  CalculoSimplesFragmentDirections.actionCalculoSimplesFragmentToListaEntregaSimplesFragment()
-//                findNavController().navigate(action)
-//            }
-//            show()
-//        }
-//    }
-//
+
     private fun showLoading(isLoading: Boolean) {
         //binding.carregamento.isVisible = isLoading
     }
@@ -117,8 +105,7 @@ class ExerciseFragment : Fragment() {
         }
 
         rotaAdapter.onItemClick = {
-//            val action =  TrainingFragmentDirections.actionTraningFragmentToExerciseFragment(it)
-//            findNavController().navigate(action)
+            changeExercise(requireContext(),it,TypeOperation.VIEW)
         }
         rotaAdapter.onItemClickVisualizar = {
             changeExercise(requireContext(),it,TypeOperation.VIEW)
@@ -154,11 +141,9 @@ class ExerciseFragment : Fragment() {
 
     }
 
-
     private fun success(){
         getAllExercise(training!!)
     }
-
 
     private fun changeExercise(contextTela: Context,exercise: Exercise,viewExercise:TypeOperation) {
 
@@ -171,9 +156,10 @@ class ExerciseFragment : Fragment() {
         val tiTitleScreenExercise = view.findViewById<TextView>(R.id.tvTitleExercise)
         val tiName = view.findViewById<TextInputEditText>(R.id.tiNomeExercise)
         val tiObservation = view.findViewById<TextInputEditText>(R.id.tiObservationExercise)
+        val observationView =  if (exercise.observation.isEmpty()) " " else exercise.observation
 
         tiName.setText(exercise.name)
-        tiObservation.setText(exercise.observation)
+        tiObservation.setText(observationView)
 
         if(viewExercise == TypeOperation.VIEW){
             tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_view)
@@ -181,6 +167,8 @@ class ExerciseFragment : Fragment() {
             tiObservation.isEnabled = false
         }else if(viewExercise == TypeOperation.EDIT) {
             tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_update)
+        }else if(viewExercise == TypeOperation.INSERT) {
+            tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_new)
         }
 
         builder.setView(view)
@@ -199,25 +187,24 @@ class ExerciseFragment : Fragment() {
                     val errorExerciseEmpty = getString(R.string.exercise_name_empty)
                     tiName.error = errorExerciseEmpty
                 }else{
+                    val observation =  if (tiObservation.text.toString().isEmpty()) "" else tiObservation.text.toString()
+                    val updExercise = exercise.copy(
+                        name = tiName.text.toString(),
+                        observation = observation,
+                        //image = Uri.parse(""),
+                    )
 
                     if (viewExercise == TypeOperation.EDIT){
-                        val observation =  if (tiObservation.text.toString().isEmpty()) "" else tiObservation.text.toString()
-
-                        val updExercise = exercise.copy(
-                            name = tiName.text.toString(),
-                            observation = observation,
-                            //image = Uri.parse(""),
-                        )
                         viewModel.updateExercise(updExercise)
+                    }else if (viewExercise == TypeOperation.INSERT){
+                        viewModel.insertExercise(updExercise)
                     }
 
                     dialog.dismiss()
-
                 }
             }
         }
 
         dialog.show()
-
     }
 }

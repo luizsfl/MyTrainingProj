@@ -14,6 +14,7 @@ import com.gym.mytraining.data.repository.UsuarioRepository
 import com.gym.mytraining.data.repository.UsuarioRepositoryImp
 import com.gym.mytraining.domain.useCase.exercise.ExerciseDeleteUseCase
 import com.gym.mytraining.domain.useCase.exercise.ExerciseGetAllUseCase
+import com.gym.mytraining.domain.useCase.exercise.ExerciseInsertUseCase
 import com.gym.mytraining.domain.useCase.exercise.ExerciseInteractor
 import com.gym.mytraining.domain.useCase.exercise.ExerciseInteractorImp
 import com.gym.mytraining.domain.useCase.exercise.ExerciseUpdateUseCase
@@ -37,16 +38,13 @@ val dataSourceModule = module {
     factory<UsuarioDataSource> { UsuarioDataSourceImp() }
     factory<TraningDataSource> { TraningDataSourceImp() }
     factory<ExerciseDataSource> { ExerciseDataSourceImp() }
-//    factory<EntregaRotaDataSource> { EntregaRotaDataSourceImp(entregaRotaDao = get()) }
-//    factory<EntregaSimplesDataSource> { EntregaSimplesDataSourceImp(entregaSimplesDao = get()) }
 }
 
 val repositoryModule = module {
     factory<UsuarioRepository> { UsuarioRepositoryImp(usuarioDataSource = get()) }
     factory<TrainingRepository> { TrainingRepositoryImp( trainingDataSource = get()) }
     factory<ExerciseRepository> { ExerciseRepositoryImp( exerciseDataSource = get()) }
-//    factory<EntregaRotaRepository> { EntregaRotaRepositoryImp(entregaRotaDataSource = get()) }
-//    factory<EntregaSimplesRepository> { EntregaSimplesRepositoryImp(entregaSimplesDataSource = get()) }
+
 }
 
 val useCaseModule = module {
@@ -57,16 +55,7 @@ val useCaseModule = module {
     factory { ExerciseGetAllUseCase( exerciseRepository= get()) }
     factory { ExerciseDeleteUseCase( exerciseRepository= get()) }
     factory { ExerciseUpdateUseCase( exerciseRepository= get()) }
-//    factory { DadosVeiculoGetUseCase(dadosVeiculoRepository = get()) }
-//    factory { EntregaRotaAddUseCase(entregaRotaRepository = get()) }
-//    factory { EntregaRotaGetAllUseCase(entregaRotaRepository = get()) }
-//    factory { EntregaRotaDeleteUseCase(entregaRotaRepository = get()) }
-//    factory { EntregaRotaUpdateUseCase(entregaRotaRepository = get()) }
-//    factory { EntregaSimplesAddUseCase(entregaSimplesRepository = get()) }
-//    factory { EntregaSimplesGetAllUseCase(entregaSimplesRepository = get()) }
-//    factory { EntregaSimplesDeleteUseCase(entregaSimplesRepository = get()) }
-//    factory { EntregaSimplesUpdateUseCase(entregaSimplesRepository = get()) }
-//    factory { EntregaRotaUpdateStatusUseCase(entregaRotaRepository = get()) }
+    factory { ExerciseInsertUseCase( exerciseRepository= get()) }
 }
 
 val interactorModule = module {
@@ -74,42 +63,30 @@ val interactorModule = module {
         UsuarioInteractorImp(
             usuarioInsertUseCase = get(),
             usuarioVerificarUsuarioLogadoUseCase=get(),
-        ) }
+        )
+    }
 
     factory<TrainingInteractor> {
         TrainingInteractorImp(
             trainingInsertUseCase = get(),
             trainingGetAllUseCase = get(),
-        ) }
+        )
+    }
 
     factory<ExerciseInteractor> {
         ExerciseInteractorImp(
             exerciseGetAllUseCase = get(),
             exerciseDeleteUseCase = get(),
             exerciseUpdateUseCase = get(),
-        ) }
-
-//    factory<EntregaRotaInteractor> {EntregaRotaInteractorImp(
-//        entregaRotaAddUseCase = get(),
-//        entregaRotaGetAllUseCase = get(),
-//        entregaRotaDeleteUseCase = get(),
-//        entregaRotaUpdateUseCase = get(),
-//        entregaRotaUpdateStatusUseCase = get()
-//    ) }
-
+            exerciseInsertUseCase = get(),
+        )
+    }
 }
 
 val viewModel = module {
-
     viewModel { NewLoginViewModel(usuarioInteractor = get()) }
     viewModel { LoginViewModel( usuarioInteractor = get()) }
     viewModel { TrainingViewModel( trainingInteractor = get())  }
     viewModel { NewTrainingViewModel( trainingInteractor = get())  }
     viewModel { ExerciseViewModel( exerciseInteractor = get())  }
-
-//    viewModel {CalculoRotaViewModel(entregaRotaInteractor = get())}
-//    viewModel {ListaEntregaRotaViewModel(entregaRotaInteractor = get()) }
-//    viewModel {DadosEntregaRotaViewModel(entregaRotaInteractor = get()) }
-//    viewModel {CalculoSimplesViewModel(entregaSimplesInteractor = get())}
-//    viewModel {ListaEntregaSimplesViewModel(entregaSimplesInteractor = get())}
 }

@@ -18,9 +18,7 @@ interface ExerciseDataSource {
     fun getAllExercise(training: Training): Flow<List<Exercise>>
     fun delete(exercise: Exercise): Flow<Exercise>
     fun update(exercise: Exercise): Flow<Exercise>
-
-//    fun deleteEntregaSimples(training: Training): Flow<Training>
-//    fun updateEntregaSimples(training: Training): Flow<Training>
+    fun insert(exercise: Exercise): Flow<Exercise>
 }
 class ExerciseDataSourceImp (
     private val autenticacaFirestore: FirebaseFirestore = ConfiguracaoFirebase.getFirebaseFirestore(),
@@ -81,7 +79,7 @@ class ExerciseDataSourceImp (
         }.flowOn(dispatcher)
     }
 
-    fun insert(item: Exercise): Flow<Exercise> {
+    override fun insert(item: Exercise): Flow<Exercise> {
         return flow {
             try {
                 var exercise = Exercise()
