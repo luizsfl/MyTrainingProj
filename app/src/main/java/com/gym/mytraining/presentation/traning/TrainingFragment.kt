@@ -18,6 +18,7 @@ import com.gym.mytraining.R
 import com.gym.mytraining.databinding.FragmentTraningBinding
 import com.gym.mytraining.domain.model.Training
 import com.gym.mytraining.presentation.adapter.TrainingAdapter
+import com.gym.mytraining.presentation.newTraning.NewTrainingFragment
 import com.gym.mytraining.presentation.viewState.ViewStateTraining
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -98,8 +99,8 @@ class TrainingFragment : Fragment() {
         }
 
         rotaAdapter.onItemClickEditar = {
-//            val action =  ListaEntregaRotaFragmentDirections.actionListaEntregaRotaFragmentToDadosVeiculoFragment(2,it)
-//            findNavController().navigate(action)
+            val action =  TrainingFragmentDirections.actionTraningFragmentToNewTraningFragment(it,NewTrainingFragment.TypeOperation.EDIT)
+            findNavController().navigate(action)
         }
 
         rotaAdapter.onItemClickExcluir = {

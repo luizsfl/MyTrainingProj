@@ -49,13 +49,13 @@
             app:argType="com.gym.mytraining.domain.model.Training"
             app:nullable="true"
             android:defaultValue="@null" />
-        <argument
-            android:name="typeScreen"
-            android:defaultValue="0"
-            app:argType="integer" />
         <action
             android:id="@+id/action_newTraningFragment_to_traningFragment"
             app:destination="@id/traningFragment" />
+        <argument
+            android:name="typeScreen"
+            app:argType="com.gym.mytraining.presentation.newTraning.NewTrainingFragment$TypeOperation"
+            android:defaultValue="INSERT" />
     </fragment>
     <fragment
         android:id="@+id/exerciseFragment"

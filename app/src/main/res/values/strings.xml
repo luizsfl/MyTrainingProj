@@ -16,4 +16,19 @@
     <string name="confirm_delet">"Deseja realmente excluir %1$s? "</string>
     <string name="yes">Sim</string>
     <string name="no">Não</string>
+    <string name="bt_edit_training">Editar Treino</string>
+    <string name="bt_new_training">Cadastrar Treino</string>
+    <string name="title_screen_training">Novo treino</string>
+    <string name="title_edite_screen_training">Editar treino</string>
+    <string name="operation_success">Operação realizada com sucesso!!</string>
+    <string name="ok">OK</string>
+    <string name="bt_cancel_dialog">Cancela</string>
+    <string name="training_name_empty">Informe o nome do treino</string>
+    <string name="tv_exercise">Exercícios</string>
+    <string name="tv_delete">Excluir</string>
+    <string name="tv_edite">Editar</string>
+    <string name="ti_hint_name_training">Informe o nome do treino</string>
+    <string name="ti_hint_description_training">Informe a descrição do treino</string>
+    <string name="ti_insert_new_exercise">Inserir exercício</string>
+    <string name="loading">Carregando</string>
 </resources>
