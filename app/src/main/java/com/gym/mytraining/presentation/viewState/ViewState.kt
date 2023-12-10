@@ -1,6 +1,7 @@
 package com.gym.mytraining.presentation.viewState
 
 import androidx.constraintlayout.motion.utils.ViewState
+import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
 import com.gym.mytraining.domain.model.Usuario
 
@@ -16,4 +17,11 @@ sealed class ViewStateTraining {
     data class Sucess(val idTraining: String):ViewStateTraining()
     data class SucessList(val list:List<Training>):ViewStateTraining()
     data class Failure(val messengerError:String = String()): ViewStateTraining()
+}
+
+sealed class ViewStateExercise{
+    data class Loading(val loading: Boolean):ViewStateExercise()
+    data class Success(val exercise: Exercise):ViewStateExercise()
+    data class SuccessList(val list:List<Exercise>):ViewStateExercise()
+    data class Failure(val messengerError:String = String()): ViewStateExercise()
 }

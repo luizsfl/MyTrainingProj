@@ -3,4 +3,10 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="novo_por_aqui"><u>Novo por aqui? Inscreva-se agora.</u></string>
     <string name="precisa_ajuda"><u>Precisa de ajuda?</u></string>
+    <string name="title_training_in_exercise">Treino:</string>
+    <string name="recycle_empty">Você ainda não possui dados.\n\n Clique no botão com sinal de mais para adicionar.</string>
+    <string name="inserir_novo_exercicio_contentDescription">Inserir novo exercicio</string>
+    <string name="voltar_a_tela_de_treino_seta">Voltar a tela de treino</string>
+    <string name="inserir_novo_treino_contentDescription">Inserir novo treino</string>
+    <string name="title_todas_os_seus_treinos">Todas os meus treinos</string>
 </resources>

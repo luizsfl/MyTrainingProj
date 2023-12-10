@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.listaEntregaSimples.ListaEntregaSimplesFragment">
+   >
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -27,14 +27,15 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:srcCompat="@drawable/ic_arrow_back_24" />
+                app:srcCompat="@drawable/ic_arrow_back_24"
+                android:contentDescription="@string/voltar_a_tela_de_treino_seta" />
 
             <TextView
                 android:id="@+id/txt_name_app"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/app_name"
-                android:textSize="20dp"
+                android:textSize="@dimen/size_title_20sp"
                 android:layout_marginStart="10dp"
                 android:textStyle="bold"
                 android:textColor="@color/white"
@@ -49,9 +50,9 @@
             android:id="@+id/txt_titulo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Lista de exercícios"
-            android:textSize="20dp"
-            android:layout_marginTop="5dp"
+            android:text="@string/title_training_in_exercise"
+            android:textSize="@dimen/size_title_20sp"
+            android:layout_marginTop="@dimen/height_margin_top_title_5dp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -62,7 +63,7 @@
             android:id="@+id/txt_sem_entregas"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Você ainda não possui rostas.\n\n Clique no botão com sinal de mais para adicionar."
+            android:text="@string/recycle_empty"
             android:textSize="40sp"
             android:textStyle="bold"
             android:textAlignment="center"
@@ -85,6 +86,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/txt_titulo"
             tools:itemCount="5"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_exercise" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -97,25 +99,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-
-            />
-
-
-        <ImageView
-            android:id="@+id/carregamento"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/loading"
-            android:contentDescription="Carregamdp"
-            android:paddingStart="80dp"
-            android:layout_marginStart="20dp"
-            android:visibility="gone"
-            android:layout_marginEnd="20dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            />
+            android:focusable="true"
+            android:contentDescription="@string/inserir_novo_exercicio_contentDescription" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

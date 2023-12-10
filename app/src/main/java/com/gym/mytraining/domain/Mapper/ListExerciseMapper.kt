@@ -8,6 +8,6 @@ fun ListExerciseResponse.toListExercise() =
         idExercise = this.idExercise,
         idTraining = this.idTraining,
         name = this.name,
-        image = this.image,
+       // image = this.image,
         observation = this.observation
     )

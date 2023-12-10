@@ -55,7 +55,6 @@ class TrainingFragment : Fragment() {
             }
         }
 
-
         return root
     }
 
@@ -106,8 +105,8 @@ class TrainingFragment : Fragment() {
         }
 
         rotaAdapter.onItemClick = {
-//            val action =  ListaEntregaRotaFragmentDirections.actionListaEntregaRotaFragmentToDadosRotaFragment2(it)
-//            findNavController().navigate(action)
+            val action =  TrainingFragmentDirections.actionTraningFragmentToExerciseFragment(it)
+            findNavController().navigate(action)
         }
         rotaAdapter.onItemClickVisualizar = {
 //            val action =  ListaEntregaRotaFragmentDirections.actionListaEntregaRotaFragmentToDadosRotaFragment2(it)

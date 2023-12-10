@@ -35,6 +35,9 @@
         <action
             android:id="@+id/action_traningFragment_to_newTraningFragment"
             app:destination="@id/newTraningFragment" />
+        <action
+            android:id="@+id/action_traningFragment_to_exerciseFragment"
+            app:destination="@id/exerciseFragment" />
     </fragment>
     <fragment
         android:id="@+id/newTraningFragment"
@@ -54,4 +57,14 @@
             android:id="@+id/action_newTraningFragment_to_traningFragment"
             app:destination="@id/traningFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/exerciseFragment"
+        android:name="com.gym.mytraining.presentation.exercise.ExerciseFragment"
+        android:label="ExerciseFragment"
+        tools:layout="@layout/fragment_exercise">
+        <argument
+            android:name="training"
+            app:argType="com.gym.mytraining.domain.model.Training" />
+    </fragment>
+
 </navigation>

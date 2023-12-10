@@ -8,6 +8,18 @@
             <LayoutPositions>
               <option name="myPositions">
                 <map>
+                  <entry key="exerciseFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="497" />
+                            <option name="y" value="-146" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                   <entry key="loginFragment">
                     <value>
                       <LayoutPositions>
@@ -19,12 +31,12 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_loginFragment_to_homeFragment">
+                            <entry key="action_loginFragment_to_newLoginFragment">
                               <value>
                                 <LayoutPositions />
                               </value>
                             </entry>
-                            <entry key="action_loginFragment_to_newLoginFragment">
+                            <entry key="action_loginFragment_to_traningFragment">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -45,7 +57,7 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_newLoginFragment_to_homeFragment">
+                            <entry key="action_newLoginFragment_to_traningFragment">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -87,7 +99,7 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_homeFragment_to_newTraningFragment">
+                            <entry key="action_traningFragment_to_newTraningFragment">
                               <value>
                                 <LayoutPositions />
                               </value>

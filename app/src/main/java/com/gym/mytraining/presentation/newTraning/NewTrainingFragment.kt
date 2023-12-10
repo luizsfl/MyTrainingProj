@@ -196,10 +196,8 @@ class NewTrainingFragment : Fragment() {
                     val observation =  if (tiObservation.text.toString().isEmpty()) "" else tiObservation.text.toString()
 
                     val exercise = Exercise(
-                        "",
-                        "",
                         name = tiName.text.toString(),
-                        image = Uri.parse(""),
+                       //image = Uri.parse(""),
                         observation = observation
                     )
 

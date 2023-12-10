@@ -1,25 +1,17 @@
 package com.gym.mytraining.data.dataSource
 
-import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.gym.mytraining.data.Config.ConfiguracaoFirebase
-import com.gym.mytraining.data.model.TrainingResponse
 import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
-import com.gym.mytraining.domain.model.Usuario
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import java.sql.Timestamp
 
 interface TraningDataSource {
     fun insert(training: Training,listExercise:List<Exercise>): Flow<String>
@@ -54,8 +46,6 @@ class TraningDataSourceImp (
             close()
         }
     }.flowOn(dispatcher)
-
-
 
     override fun insert(training: Training,listExercise:List<Exercise>): Flow<String> {
         return flow {
@@ -104,9 +94,6 @@ class TraningDataSourceImp (
         }.flowOn(dispatcher)
     }
 
-
-
-
     override fun getAllTraining(): Flow<List<Training>> {
         return callbackFlow  {
             val idUsuario = autenticacao.currentUser?.uid.toString()
@@ -118,15 +105,13 @@ class TraningDataSourceImp (
 
                     val listResponse = mutableListOf<Training>()
 
-                    result.map {  }
-
                     for (document in result) {
 
                         val training = document.toObject(Training::class.java)!!
 
-                        training.copy(idUsuario = document.id)
+                        val newTraining = training.copy(idTraining = document.id)
 
-                        listResponse.add(training)
+                        listResponse.add(newTraining)
                     }
 
                     trySend(listResponse)
