@@ -13,39 +13,18 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 
-interface TraningDataSource {
+interface TrainingDataSource {
     fun insert(training: Training,listExercise:List<Exercise>): Flow<String>
     fun getAllTraining(): Flow<List<Training>>
-//    fun deleteEntregaSimples(training: Training): Flow<Training>
-//    fun updateEntregaSimples(training: Training): Flow<Training>
+
+    fun delete(item: Training): Flow<Training>
+
 }
-class TraningDataSourceImp (
+class TrainingDataSourceImp (
     private val autenticacaFirestore: FirebaseFirestore = ConfiguracaoFirebase.getFirebaseFirestore(),
     private val autenticacao: FirebaseAuth = ConfiguracaoFirebase.getFirebaseAutenticacao(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
-):TraningDataSource {
-
-     fun insert2(training: Training): Flow<String>
-            = callbackFlow {
-        try {
-            val idUsuario = autenticacao.currentUser?.uid.toString()
-
-            val newTraining = training.copy(idUsuario=idUsuario)
-
-            autenticacaFirestore.collection("training")
-                .add(newTraining)
-                .addOnFailureListener {
-                    trySend(error("addTraining ${it.message.toString()}"))
-                }.addOnSuccessListener { result ->
-                    trySend(result.id)
-                }
-        } catch (e: Exception) {
-            trySend(error("addtraining ${e.message.toString()}"))
-        }
-        awaitClose{
-            close()
-        }
-    }.flowOn(dispatcher)
+):TrainingDataSource {
 
     override fun insert(training: Training,listExercise:List<Exercise>): Flow<String> {
         return flow {
@@ -126,29 +105,25 @@ class TraningDataSourceImp (
         }.flowOn(dispatcher)
     }
 
-//
-//    fun deleteEntregaSimples(entrega: EntregaSimples): Flow<EntregaSimples> {
-//        return callbackFlow  {
-//
-//            autenticacaFirestore.collection("entregaSimples")
-//                .document(entrega.idDocument)
-//                .delete()
-//                .addOnSuccessListener { result ->
-//                    trySend(entrega)
-//                }
-//                .addOnFailureListener {
-//                    val messengerErro = "deleteEntregaSimples ${it.message.toString()}"
-//                    trySend(error(messengerErro))
-//                }
-//            awaitClose{
-//                close()
-//            }
-//        }.flowOn(dispatcher)
-//    }
-//
-//    fun updateEntregaSimples(entrega: EntregaSimples): Flow<EntregaSimples> {
-//        return this.addEntregaSimples(entrega)
-//    }
+
+    override fun delete(item: Training): Flow<Training> {
+        return callbackFlow {
+
+            autenticacaFirestore.collection("training")
+                .document(item.idTraining)
+                .delete()
+                .addOnSuccessListener { result ->
+                    trySend(item)
+                }
+                .addOnFailureListener {
+                    val messengerErro = "DeleteTraining ${it.message.toString()}"
+                    trySend(error(messengerErro))
+                }
+            awaitClose {
+                close()
+            }
+        }.flowOn(dispatcher)
+    }
 
 }
 

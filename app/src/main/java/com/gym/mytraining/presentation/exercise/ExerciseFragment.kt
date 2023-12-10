@@ -127,7 +127,7 @@ class ExerciseFragment : Fragment() {
 
         val builder = AlertDialog.Builder(contextScreen!!)
 
-        builder.setTitle(getString(R.string.confirm_delet_exercise, exercise.name))
+        builder.setTitle(getString(R.string.confirm_delet, exercise.name))
 
         builder.setPositiveButton("Sim") { dialog, which ->
                 viewModel.deleteExercise(exercise)

@@ -13,5 +13,7 @@
     <string name="title_screen_exercise_update">Editar Exercício</string>
     <string name="title_screen_exercise_view">Visualizar Exercício</string>
     <string name="exercise_name_empty">Digite o nome do exercício</string>
-    <string name="confirm_delet_exercise">"Deseja realmente excluir : %1$s? "</string>
+    <string name="confirm_delet">"Deseja realmente excluir %1$s? "</string>
+    <string name="yes">Sim</string>
+    <string name="no">Não</string>
 </resources>

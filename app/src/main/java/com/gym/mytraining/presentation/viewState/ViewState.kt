@@ -14,7 +14,7 @@ sealed class ViewStateUsuario {
 
 sealed class ViewStateTraining {
     data class Loading(val loading: Boolean):ViewStateTraining()
-    data class Sucess(val idTraining: String):ViewStateTraining()
+    data class Success(val idTraining: String):ViewStateTraining()
     data class SucessList(val list:List<Training>):ViewStateTraining()
     data class Failure(val messengerError:String = String()): ViewStateTraining()
 }

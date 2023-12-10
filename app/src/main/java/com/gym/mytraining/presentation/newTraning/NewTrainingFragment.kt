@@ -89,7 +89,7 @@ class NewTrainingFragment : Fragment() {
         viewModel.viewStateTraining.observe(viewLifecycleOwner) { viewState ->
             when (viewState) {
                 is ViewStateTraining.Loading -> showLoading(viewState.loading)
-                is ViewStateTraining.Sucess -> sucess(viewState.idTraining)
+                is ViewStateTraining.Success ->  success()
                 is ViewStateTraining.Failure -> showErro(viewState.messengerError)
                 else -> {}
             }
@@ -119,14 +119,14 @@ class NewTrainingFragment : Fragment() {
         showLoading(false)
     }
 
-    fun sucess(training: String) {
+    fun success() {
 
         showLoading(false)
 
         val builder = android.app.AlertDialog.Builder(requireContext())
         with(builder)
         {
-            setTitle("Treino Criado com sucesso")
+            setTitle("Operação realizada com sucesso!!")
             setCancelable(false) //não fecha quando clicam fora do dialog
             setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
                 val action =

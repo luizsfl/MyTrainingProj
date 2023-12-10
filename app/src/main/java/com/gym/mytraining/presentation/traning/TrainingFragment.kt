@@ -1,5 +1,6 @@
 package com.gym.mytraining.presentation.traning
 
+import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
 import androidx.fragment.app.Fragment
@@ -7,10 +8,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import com.gym.mytraining.R
 import com.gym.mytraining.databinding.FragmentTraningBinding
 import com.gym.mytraining.domain.model.Training
 import com.gym.mytraining.presentation.adapter.TrainingAdapter
@@ -41,38 +45,24 @@ class TrainingFragment : Fragment() {
 
         viewModel.viewStateTraining.observe(viewLifecycleOwner) { viewState ->
             when (viewState) {
-                is ViewStateTraining.Loading -> showLoading(viewState.loading)
+                is ViewStateTraining.Loading    -> showLoading(viewState.loading)
+                is ViewStateTraining.Success    -> getAllTraining()
                 is ViewStateTraining.SucessList -> setAdapter(viewState.list)
-                is ViewStateTraining.Failure -> showErro(viewState.messengerError)
+                is ViewStateTraining.Failure    -> showErro(viewState.messengerError)
                 else -> {}
             }
         }
-
         return root
     }
 
     private fun getAllTraining(){
         viewModel.getAll()
     }
-//
-//    private fun showSucess(entregaSimples: EntregaSimples){
-//        val builder = android.app.AlertDialog.Builder(requireContext())
-//        with(builder)
-//        {
-//            setTitle("Entrega simples criada com sucesso!!")
-//            setCancelable(false) //não fecha quando clicam fora do dialog
-//            setPositiveButton("OK") { dialog, which ->
-//                val action =  CalculoSimplesFragmentDirections.actionCalculoSimplesFragmentToListaEntregaSimplesFragment()
-//                findNavController().navigate(action)
-//            }
-//            show()
-//        }
-//    }
-//
+
     private fun showLoading(isLoading: Boolean) {
-        //binding.carregamento.isVisible = isLoading
+        binding.progressBar.isVisible = isLoading
     }
-//
+
     private fun showErro(text: String) {
         var view = binding.root.rootView
         val snackBarView = Snackbar.make(view, text , Snackbar.LENGTH_LONG)
@@ -101,9 +91,10 @@ class TrainingFragment : Fragment() {
             val action =  TrainingFragmentDirections.actionTraningFragmentToExerciseFragment(it)
             findNavController().navigate(action)
         }
+
         rotaAdapter.onItemClickVisualizar = {
-//            val action =  ListaEntregaRotaFragmentDirections.actionListaEntregaRotaFragmentToDadosRotaFragment2(it)
-//            findNavController().navigate(action)
+            val action =  TrainingFragmentDirections.actionTraningFragmentToExerciseFragment(it)
+            findNavController().navigate(action)
         }
 
         rotaAdapter.onItemClickEditar = {
@@ -112,7 +103,7 @@ class TrainingFragment : Fragment() {
         }
 
         rotaAdapter.onItemClickExcluir = {
-           // excluirEntrega(requireContext(),it)
+            deletTraining(requireContext(),it)
         }
 
 
@@ -120,6 +111,22 @@ class TrainingFragment : Fragment() {
         showLoading(false)
     }
 
+    private fun deletTraining(contextScreen : Context, item: Training){
 
+        val builder = AlertDialog.Builder(contextScreen!!)
+
+        builder.setTitle(getString(R.string.confirm_delet, item.name))
+
+        builder.setPositiveButton(getString(R.string.yes)) { dialog, which ->
+            viewModel.deleteTraining(item)
+        }
+
+        builder.setNegativeButton(getString(R.string.no), null)
+
+        builder.create()
+
+        builder.show()
+
+    }
 
 }
