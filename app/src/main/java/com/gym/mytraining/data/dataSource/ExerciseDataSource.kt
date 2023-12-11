@@ -1,8 +1,7 @@
 package com.gym.mytraining.data.dataSource
 
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.dataObjects
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.storage.FirebaseStorage
 import com.gym.mytraining.data.Config.ConfiguracaoFirebase
 import com.gym.mytraining.data.model.ExerciseResponse
@@ -11,10 +10,10 @@ import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 
 interface ExerciseDataSource {
@@ -26,7 +25,6 @@ interface ExerciseDataSource {
 
 class ExerciseDataSourceImp (
     private val autenticacaFirestore: FirebaseFirestore = ConfiguracaoFirebase.getFirebaseFirestore(),
-    private val autenticacao: FirebaseAuth = ConfiguracaoFirebase.getFirebaseAutenticacao(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ):ExerciseDataSource {
 
@@ -42,21 +40,13 @@ class ExerciseDataSourceImp (
 
                     val listResponse = mutableListOf<Exercise>()
 
-                    for (document in result) {
-
-                        val exerciseResponse = document.toObject(ExerciseResponse::class.java)!!
-
-                        val newTraining = exerciseResponse.copy(idExercise = document.id).toExercise()
-
-                        listResponse.add(newTraining)
-                    }
+                    convertResponseToExercise(result, listResponse)
 
                     trySend(listResponse)
 
                 }
                 .addOnFailureListener {
-                    val messengerErro = "getAllExercise ${it.message.toString()}"
-                    trySend(error(messengerErro))
+                    trySend(error(it.message.toString()))
                 }
             awaitClose {
                 close()
@@ -66,7 +56,6 @@ class ExerciseDataSourceImp (
 
     override fun delete(item: Exercise): Flow<Exercise> {
         return callbackFlow {
-
             autenticacaFirestore.collection("exercise")
                 .document(item.idExercise)
                 .delete()
@@ -74,8 +63,7 @@ class ExerciseDataSourceImp (
                     trySend(item)
                 }
                 .addOnFailureListener {
-                    val messengerErro = "DeleteExercise ${it.message.toString()}"
-                    trySend(error(messengerErro))
+                    trySend(error(it.message.toString()))
                 }
             awaitClose {
                 close()
@@ -84,53 +72,40 @@ class ExerciseDataSourceImp (
     }
 
     override fun insert(item: Exercise): Flow<Exercise> {
-        return flow {
+        return callbackFlow {
             try {
-                var exercise = Exercise()
-                var messengerErro = ""
-
                 autenticacaFirestore.collection("exercise")
                     .add(item)
                     .addOnFailureListener {
-                        messengerErro = it.message.toString()
+                        trySend(error(it.message.toString()))
                     }
-                    .addOnCompleteListener {
-                        if (it.isSuccessful) {
+                    .addOnSuccessListener {
 
-                            exercise = item.copy(idExercise = it.result.id)
+                        val exercise = item.copy(idExercise = it.id)
 
-                            uploadImage(exercise)
-
-                        } else {
-                            messengerErro = it.exception.toString()
-                        }
+                        uploadImage(exercise)
                     }
-                if (messengerErro.isEmpty())
-                    emit(exercise)
-                else {
-                    emit(error("InsertExercise_1" + messengerErro))
-                }
 
             } catch (e: Exception) {
-                emit(error("InsertExercise_1 ${e.message.toString()}"))
+                trySend(error("${e.message.toString()}"))
+            }
+
+            awaitClose {
+                close()
             }
         }.flowOn(dispatcher)
     }
+
     override fun update(item: Exercise): Flow<Exercise> {
         return callbackFlow {
             autenticacaFirestore.collection("exercise")
                 .document(item.idExercise)
                 .set(item)
                 .addOnSuccessListener { result ->
-
                     uploadImage(item)
-
-                    trySend(item)
-
                 }
                 .addOnFailureListener {
-                    val messengerErro = "DeleteExercise ${it.message.toString()}"
-                    trySend(error(messengerErro))
+                    trySend(error(it.message.toString()))
                 }
             awaitClose {
                 close()
@@ -138,18 +113,36 @@ class ExerciseDataSourceImp (
         }.flowOn(dispatcher)
     }
 
-    private fun uploadImage(item:Exercise) {
-        if(!item.image.toString().isEmpty()){
-            val mStorageRef = FirebaseStorage.getInstance().reference
-            //val date = Date()
-            val uploadTask = mStorageRef.child("${item.idExercise}.png").putFile(item.image)
-            uploadTask.addOnSuccessListener {
+    private fun ProducerScope<Exercise>.uploadImage(
+        exercise: Exercise
+    ) {
+        if (!exercise.image.toString().isEmpty() && !exercise.image.toString().contains("https://firebasestorage.googleapis.com")) {
 
-            }.addOnFailureListener {
-                // Log.e("Frebase", "Image Upload fail")
-                val test = ""
-            }
+            val mStorageRef = FirebaseStorage.getInstance().reference
+            val uploadTask = mStorageRef.child("${exercise.idExercise}.png").putFile(exercise.image)
+            uploadTask
+                .addOnFailureListener {
+                    trySend(error(it.message.toString()))
+                }
+                .addOnSuccessListener {
+                    trySend(exercise)
+                }
+        }else{
+            trySend(exercise)
         }
     }
 
+    private fun convertResponseToExercise(
+        result: QuerySnapshot,
+        listResponse: MutableList<Exercise>
+    ) {
+        for (document in result) {
+
+            val exerciseResponse = document.toObject(ExerciseResponse::class.java)!!
+
+            val newTraining = exerciseResponse.copy(idExercise = document.id).toExercise()
+
+            listResponse.add(newTraining)
+        }
+    }
 }

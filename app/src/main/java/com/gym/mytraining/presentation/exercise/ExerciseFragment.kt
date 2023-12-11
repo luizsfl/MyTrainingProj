@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -94,7 +95,7 @@ class ExerciseFragment : Fragment() {
     }
 
     private fun showLoading(isLoading: Boolean) {
-        //binding.carregamento.isVisible = isLoading
+        binding.progressBar.isVisible = isLoading
     }
 
     private fun showErro(text: String) {

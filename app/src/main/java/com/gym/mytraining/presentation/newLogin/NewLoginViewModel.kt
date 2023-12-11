@@ -31,8 +31,8 @@ class NewLoginViewModel (
         }
     }
 
-    private fun setUsuario(usuario: Usuario) {
-        _viewStateUsuario.value = ViewStateUsuario.SucessoUsuario(usuario)
+    private fun setUsuario(viewStateUsuario: ViewStateUsuario) {
+        _viewStateUsuario.value = viewStateUsuario //ViewStateUsuario.SucessoUsuario(usuario)
     }
 
     private fun validUsuario(usuario: Usuario):Boolean{

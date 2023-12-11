@@ -1,12 +1,8 @@
 package com.gym.mytraining.data.dataSource
 
-import android.app.ProgressDialog
-import android.content.Context
-import android.net.Uri
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.storage.FirebaseStorage
 import com.gym.mytraining.data.Config.ConfiguracaoFirebase
 import com.gym.mytraining.data.model.TrainingResponse
@@ -15,12 +11,11 @@ import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import java.util.Date
 
 interface TrainingDataSource {
     fun insert(training: Training,listExercise:List<Exercise>): Flow<String>
@@ -38,53 +33,47 @@ class TrainingDataSourceImp (
 ):TrainingDataSource {
 
     override fun insert(training: Training,listExercise:List<Exercise>): Flow<String> {
-        return flow {
+        return callbackFlow {
             try {
 
                 val idUsuario= autenticacao.currentUser?.uid.toString()
-                val newTraining = training.copy(idUsuario=idUsuario)
-                var messengerErro = ""
-                var idTraining = ""
+                var newTraining = training.copy(idUsuario=idUsuario)
 
                 autenticacaFirestore.collection("training")
                     .add(newTraining)
-                    .addOnCompleteListener {
-                        if (it.isSuccessful) {
-                            //create exercicios.
-                            idTraining = it.result.id
+                    .addOnSuccessListener {
 
-                            for(exercise in listExercise){
+                            val newTraining = newTraining.copy(idTraining=it.id)
 
-                                val newExercise = exercise.copy(idTraining=idTraining)
+                            for(position in listExercise.indices ){
 
-                                autenticacaFirestore.collection("exercise")
-                                    .add(newExercise)
-                                    .addOnFailureListener {
-                                        messengerErro = it.message.toString()
-                                    }
+                                val exercise = listExercise.get(position)
+
+                                val newExercise = exercise.copy(idTraining=newTraining.idTraining)
+                                changeExercise(newExercise, newTraining, position, listExercise)
+
                             }
 
-                        }else{
-                            messengerErro = it.exception.toString()
+                        if(listExercise.size==0){
+                            trySend(newTraining.idTraining)
                         }
 
                     }.addOnFailureListener {
-                        messengerErro = it.toString()
+                        trySend(error("${it.message.toString()}"))
                     }
-                // training
-                if(messengerErro.isEmpty())
-                    emit(idTraining)
-                else{
-                    emit(error("InsertTraining_1"+messengerErro))
-                }
             } catch (e: Exception) {
-                emit(error("InsertTraining_2"+e.toString()))
+                trySend(error("${e.message.toString()}"))
+            }
+
+            awaitClose {
+                close()
             }
         }.flowOn(dispatcher)
     }
 
     override fun getAllTraining(): Flow<List<Training>> {
         return callbackFlow  {
+
             val idUsuario = autenticacao.currentUser?.uid.toString()
 
             autenticacaFirestore.collection("training")
@@ -94,21 +83,13 @@ class TrainingDataSourceImp (
 
                     val listResponse = mutableListOf<Training>()
 
-                    for (document in result) {
-
-                        val training = document.toObject(TrainingResponse::class.java)!!
-
-                        val newTraining = training.copy(idTraining = document.id).toTraining()
-
-                        listResponse.add(newTraining)
-                    }
+                    convertResponseToTraining(result, listResponse)
 
                     trySend(listResponse)
 
                 }
                 .addOnFailureListener {
-                    val messengerErro = "GetAllTreining ${it.message.toString()}"
-                    trySend(error(messengerErro))
+                    trySend(error(it.message.toString()))
                 }
             awaitClose{
                 close()
@@ -119,17 +100,20 @@ class TrainingDataSourceImp (
 
     override fun delete(item: Training): Flow<Training> {
         return callbackFlow {
+            try {
+                autenticacaFirestore.collection("training")
+                    .document(item.idTraining)
+                    .delete()
+                    .addOnSuccessListener { result ->
+                        trySend(item)
+                    }
+                    .addOnFailureListener {
+                        trySend(error(it.message.toString()))
+                    }
+            }catch (e:Exception){
+                trySend(error("${e.message.toString()}"))
+            }
 
-            autenticacaFirestore.collection("training")
-                .document(item.idTraining)
-                .delete()
-                .addOnSuccessListener { result ->
-                    trySend(item)
-                }
-                .addOnFailureListener {
-                    val messengerErro = "DeleteTraining ${it.message.toString()}"
-                    trySend(error(messengerErro))
-                }
             awaitClose {
                 close()
             }
@@ -137,85 +121,122 @@ class TrainingDataSourceImp (
     }
 
     override fun update(item: Training,listExercise:List<Exercise>): Flow<String> {
-        return flow {
+        return callbackFlow {
             try {
-                var messengerErro = ""
-                var idTraining = ""
-
                 autenticacaFirestore.collection("training")
                     .document(item.idTraining)
                     .set(item)
-                    .addOnCompleteListener {
-                        if (it.isSuccessful) {
+                    .addOnSuccessListener {
+                            for(position in listExercise.indices ){
 
-                            for(exercise in listExercise){
+                                val exercise = listExercise.get(position)
 
-                                if(exercise.idExercise.isNullOrEmpty()){
-                                    if(!exercise.deleted){
-                                        val newExercise = exercise.copy(idTraining=item.idTraining)
-                                        autenticacaFirestore.collection("exercise")
-                                            .add(newExercise)
-                                            .addOnFailureListener {
-                                                messengerErro = it.message.toString()
-                                            }
-                                            .addOnSuccessListener {
-
-                                                val newExercise = exercise.copy(idExercise = it.id)
-
-                                                uploadImage(newExercise)
-                                            }
-                                    }
-                                }else{
-                                    if(exercise.deleted){
-                                        autenticacaFirestore.collection("exercise")
-                                            .document(exercise.idExercise)
-                                            .delete()
-                                            .addOnFailureListener {
-                                                messengerErro = it.message.toString()
-                                            }
-                                    }else{
-                                        autenticacaFirestore.collection("exercise")
-                                            .document(exercise.idExercise)
-                                            .set(exercise)
-                                            .addOnFailureListener {
-                                                messengerErro = it.message.toString()
-                                            }
-                                            .addOnSuccessListener {
-                                                uploadImage(exercise)
-                                            }
-                                    }
-                                }
+                                changeExercise(exercise, item, position, listExercise)
 
                             }
 
-                        }else{
-                            messengerErro = it.exception.toString()
+                        if(listExercise.isEmpty()){
+                            trySend(item.idTraining)
                         }
 
                     }.addOnFailureListener {
-                        messengerErro = it.toString()
+                        trySend(error(it.message.toString()))
                     }
-                if(messengerErro.isEmpty())
-                    emit(idTraining)
-                else{
-                    emit(error("UpdateTraining_1"+messengerErro))
+
+                awaitClose {
+                 //   close()
                 }
+
             } catch (e: Exception) {
-                emit(error("UpdateTraining_2"+e.toString()))
+                trySend(error(e.message.toString()))
             }
         }.flowOn(dispatcher)
     }
 
+    private fun ProducerScope<String>.changeExercise(
+        exercise: Exercise,
+        item: Training,
+        position: Int,
+        listExercise: List<Exercise>
+    ) {
+        if (exercise.idExercise.isNullOrEmpty()) {
+            if (!exercise.deleted) {
+                val newExercise = exercise.copy(idTraining = item.idTraining)
 
-    private fun uploadImage(item:Exercise) {
-        if(!item.image.toString().isEmpty()){
-            val mStorageRef = FirebaseStorage.getInstance().reference
-            val uploadTask = mStorageRef.child("${item.idExercise}.png").putFile(item.image)
-            uploadTask.addOnSuccessListener {
-
-            }.addOnFailureListener {
-                Log.e("Frebase_uploadImage", it.message.toString())
+                autenticacaFirestore.collection("exercise")
+                    .add(newExercise)
+                    .addOnFailureListener {
+                        trySend(error(it.message.toString()))
+                    }
+                    .addOnSuccessListener {
+                        val newExercise = exercise.copy(idExercise = it.id)
+                        uploadImage(newExercise, item, position == listExercise.lastIndex)
+                    }
+            } else {
+                if (position == listExercise.lastIndex) {
+                    trySend(item.idTraining)
+                }
             }
+        } else {
+            if (exercise.deleted) {
+                autenticacaFirestore.collection("exercise")
+                    .document(exercise.idExercise)
+                    .delete()
+                    .addOnFailureListener {
+                        trySend(error(it.message.toString()))
+                    }.addOnSuccessListener {
+                        if (position == listExercise.lastIndex) {
+                            trySend(item.idTraining)
+                        }
+                    }
+            } else {
+                autenticacaFirestore.collection("exercise")
+                    .document(exercise.idExercise)
+                    .set(exercise)
+                    .addOnFailureListener {
+                        trySend(error(it.message.toString()))
+                    }
+                    .addOnSuccessListener {
+                        uploadImage(exercise, item, position == listExercise.lastIndex)
+                    }
+            }
+        }
+    }
+
+    private fun ProducerScope<String>.uploadImage(
+        exercise: Exercise,
+        training: Training,
+        lastImag :Boolean,
+    ) {
+        if (!exercise.image.toString().isEmpty() && !exercise.image.toString().contains("https://firebasestorage.googleapis.com")) {
+            val mStorageRef = FirebaseStorage.getInstance().reference
+            val uploadTask = mStorageRef.child("${exercise.idExercise}.png").putFile(exercise.image)
+                .addOnSuccessListener {
+                    if(lastImag){
+                        trySend(training.idTraining)
+                    }
+                }
+            uploadTask.addOnFailureListener {
+                trySend(error(it.message.toString()))
+            }
+        }else{
+            if(lastImag){
+                trySend(training.idTraining)
+            }
+        }
+    }
+
+    private fun convertResponseToTraining(
+        result: QuerySnapshot,
+        listResponse: MutableList<Training>
+    ) {
+        for (document in result) {
+
+            val training = document.toObject(TrainingResponse::class.java)!!
+
+            val newTraining = training.copy(idTraining = document.id).toTraining()
+
+            listResponse.add(newTraining)
         }
     }
 }
