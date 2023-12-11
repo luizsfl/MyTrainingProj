@@ -1,11 +1,7 @@
 package com.gym.mytraining.data.dataSource
 
-import android.app.ProgressDialog
-import android.content.Context
-import android.net.Uri
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.gym.mytraining.data.Config.ConfiguracaoFirebase
@@ -20,7 +16,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import java.util.Date
 
 interface TrainingDataSource {
     fun insert(training: Training,listExercise:List<Exercise>): Flow<String>
@@ -116,7 +111,6 @@ class TrainingDataSourceImp (
         }.flowOn(dispatcher)
     }
 
-
     override fun delete(item: Training): Flow<Training> {
         return callbackFlow {
 
@@ -205,7 +199,6 @@ class TrainingDataSourceImp (
             }
         }.flowOn(dispatcher)
     }
-
 
     private fun uploadImage(item:Exercise) {
         if(!item.image.toString().isEmpty()){

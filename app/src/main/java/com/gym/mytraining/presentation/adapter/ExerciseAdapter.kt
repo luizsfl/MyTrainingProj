@@ -5,6 +5,8 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.gym.mytraining.R
 import com.gym.mytraining.databinding.ItemExerciseBinding
 import com.gym.mytraining.databinding.ItemTrainingBinding
@@ -23,12 +25,18 @@ class ExerciseAdapter(private val dataSet: List<Exercise>) :
 
         fun bind(item: Exercise){
             binding.title.text = context.getString(R.string.name_exercise, item.name)
-            binding.observation.text =
-                context.getString(R.string.observation_exercise, item.observation)
-            // binding.date.text = item.date.toString()
+            binding.observation.text = context.getString(R.string.observation_exercise, item.observation)
+
             if(item.deleted){
                 binding.container1.setBackgroundColor(Color.DKGRAY)
             }
+
+            Glide.with(context)
+                .load(item.image)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
+                .placeholder(R.drawable.loading)
+                .into(binding.appCompatImageView)
         }
     }
 
