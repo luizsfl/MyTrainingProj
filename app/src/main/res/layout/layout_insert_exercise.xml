@@ -65,7 +65,7 @@
                     android:id="@+id/tiNomeExercise"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Informe o nome do treino"
+                    android:hint="@string/ti_info_name_exercise"
                     android:inputType="text"
                     />
             </com.google.android.material.textfield.TextInputLayout>
@@ -74,7 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:hint="Informe a descrição do treino"
+                android:hint="@string/ti_info_desc_exercise"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
