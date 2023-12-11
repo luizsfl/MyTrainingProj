@@ -11,9 +11,24 @@
                   <entry key="vectorAssetStep">
                     <value>
                       <PersistentState>
+                        <option name="children">
+                          <map>
+                            <entry key="clipartAsset">
+                              <value>
+                                <PersistentState>
+                                  <option name="values">
+                                    <map>
+                                      <entry key="url" value="file:/$PROJECT_DIR$/../../../../Ingrid%20Oliveira/AppData/Local/Android/Sdk/icons/material/materialicons/fitness_center/baseline_fitness_center_24.xml" />
+                                    </map>
+                                  </option>
+                                </PersistentState>
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_arrow_back_24" />
+                            <entry key="outputName" value="fitness_center_24" />
                             <entry key="sourceFile" value="C:\Users\Ingrid Oliveira\Documents\std_and_\mytraining" />
                           </map>
                         </option>

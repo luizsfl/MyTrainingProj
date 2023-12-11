@@ -89,6 +89,14 @@ class NewTrainingFragment : Fragment() {
     }
 
     private fun listerners() {
+        binding.tvInsertExercise.setOnClickListener {
+            changeExercise(contextTela =  requireContext(),exercise = Exercise(),viewExercise = ExerciseFragment.TypeOperation.INSERT, position = -1)
+        }
+
+        binding.ivVoltar.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
         binding.btInsert.setOnClickListener {
 
             val txName = binding.tiNome.text.toString()
@@ -123,13 +131,6 @@ class NewTrainingFragment : Fragment() {
             }
         }
 
-        binding.tvInsertExercise.setOnClickListener {
-            changeExercise(contextTela =  requireContext(),exercise = Exercise(),viewExercise = ExerciseFragment.TypeOperation.INSERT, position = -1)
-        }
-
-        binding.ivVoltar.setOnClickListener {
-            findNavController().navigateUp()
-        }
     }
 
     private fun observeTraining() {

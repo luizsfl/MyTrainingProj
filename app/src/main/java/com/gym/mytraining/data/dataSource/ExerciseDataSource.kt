@@ -122,7 +122,7 @@ class ExerciseDataSourceImp (
                 .document(item.idExercise)
                 .set(item)
                 .addOnSuccessListener { result ->
-                    
+
                     uploadImage(item)
 
                     trySend(item)

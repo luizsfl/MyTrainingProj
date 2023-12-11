@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Training</string>
+    <string name="app_name">Meu Treino</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="novo_por_aqui"><u>Novo por aqui? Inscreva-se agora.</u></string>
     <string name="precisa_ajuda"><u>Precisa de ajuda?</u></string>
@@ -32,4 +32,10 @@
     <string name="ti_insert_new_exercise">Inserir exercício</string>
     <string name="loading">Carregando</string>
     <string name="tv_look">Visualizar</string>
+    <string name="logout">Deslogar</string>
+    <string name="name_training">Treino: %1$s</string>
+    <string name="description_training">Descrição: %1$s</string>
+    <string name="name_exercise">Exercício: %1$s</string>
+    <string name="observation_exercise">Observação: %1$s</string>
+    <string name="description_date_training">Data: %1$s</string>
 </resources>
