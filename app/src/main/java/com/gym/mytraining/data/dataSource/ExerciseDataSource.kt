@@ -40,7 +40,7 @@ class ExerciseDataSourceImp (
 
                     val listResponse = mutableListOf<Exercise>()
 
-                    convertResponseToTraining(result, listResponse)
+                    convertResponseToExercise(result, listResponse)
 
                     trySend(listResponse)
 
@@ -116,18 +116,23 @@ class ExerciseDataSourceImp (
     private fun ProducerScope<Exercise>.uploadImage(
         exercise: Exercise
     ) {
-        val mStorageRef = FirebaseStorage.getInstance().reference
-        val uploadTask = mStorageRef.child("${exercise.idExercise}.png").putFile(exercise.image)
-        uploadTask
-            .addOnFailureListener {
-                trySend(error(it.message.toString()))
-            }
-            .addOnSuccessListener {
-                trySend(exercise)
-            }
+        if (!exercise.image.toString().isEmpty() && !exercise.image.toString().contains("https://firebasestorage.googleapis.com")) {
+
+            val mStorageRef = FirebaseStorage.getInstance().reference
+            val uploadTask = mStorageRef.child("${exercise.idExercise}.png").putFile(exercise.image)
+            uploadTask
+                .addOnFailureListener {
+                    trySend(error(it.message.toString()))
+                }
+                .addOnSuccessListener {
+                    trySend(exercise)
+                }
+        }else{
+            trySend(exercise)
+        }
     }
 
-    private fun convertResponseToTraining(
+    private fun convertResponseToExercise(
         result: QuerySnapshot,
         listResponse: MutableList<Exercise>
     ) {
