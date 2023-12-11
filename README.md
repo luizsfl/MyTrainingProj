@@ -22,3 +22,16 @@ Esse documento destina-se a equipe de avaliação.
 9.  Banco de dados firestore para as entidades
 10. Storage para imagens
 11. Controle de versão com git
+
+## Imagens do aplicativo
+
+<p align="center">
+<img width="200" height="400" alt="image" src="https://github.com/luizsfl/MyTrainingProj/assets/70184804/78db7337-1321-4f81-933b-f7a58ee8b8e6">
+<img width="200" height="400" alt="image" src="https://github.com/luizsfl/MyTrainingProj/assets/70184804/b3528823-1945-4e56-80b0-7a3e4c8f5e18">
+<img width="200" height="400" alt="image" src="https://github.com/luizsfl/MyTrainingProj/assets/70184804/87496eb0-c9a1-4f54-a438-2ff944908ebf">
+<img width="200" height="400" alt="image" src="https://github.com/luizsfl/MyTrainingProj/assets/70184804/96fa4a36-847d-491c-8a8d-af73d3cd31b9">
+<img width="200" height="400" alt="image" src="https://github.com/luizsfl/MyTrainingProj/assets/70184804/a3979ca2-4730-4758-9c53-96162ee51cf5">
+<img width="200" height="400" alt="image" src="https://github.com/luizsfl/MyTrainingProj/assets/70184804/40a8ba17-98ec-49db-ade2-c887ddc53396">
+<img width="200" height="400" alt="image" src="https://github.com/luizsfl/MyTrainingProj/assets/70184804/eb8c3762-6d1a-4993-916a-4f4498cd6509">
+</p>
+
