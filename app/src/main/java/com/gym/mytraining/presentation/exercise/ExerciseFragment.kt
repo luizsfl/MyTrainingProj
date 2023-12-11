@@ -1,6 +1,7 @@
 package com.gym.mytraining.presentation.exercise
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -29,6 +30,7 @@ import com.gym.mytraining.databinding.FragmentExerciseBinding
 import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
 import com.gym.mytraining.presentation.adapter.ExerciseAdapter
+import com.gym.mytraining.presentation.newTraning.NewTrainingFragmentDirections
 import com.gym.mytraining.presentation.viewState.ViewStateExercise
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -158,6 +160,17 @@ class ExerciseFragment : Fragment() {
 
     private fun success(){
         getAllExercise(training!!)
+
+        showLoading(false)
+
+        val builder = android.app.AlertDialog.Builder(requireContext())
+        with(builder)
+        {
+            setTitle(getString(R.string.operation_success))
+            setCancelable(false) //não fecha quando clicam fora do dialog
+            setPositiveButton(getString(R.string.ok)) { _, _ -> }
+            show()
+        }
     }
 
     fun openSomeActivityForResult() {

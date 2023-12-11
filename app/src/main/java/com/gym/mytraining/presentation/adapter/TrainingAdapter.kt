@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.gym.mytraining.R
 import com.gym.mytraining.databinding.ItemTrainingBinding
 import com.gym.mytraining.domain.model.Training
 
@@ -18,8 +19,9 @@ class TrainingAdapter(private val dataSet: List<Training>) :
     class ViewHolder(val binding: ItemTrainingBinding, val context: Context) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Training){
-            binding.title.text = item.name
-            binding.description.text = item.description
+            binding.title.text = context.getString(R.string.name_training, item.name)
+            binding.description.text =
+                context.getString(R.string.description_training, item.description)
            // binding.date.text = item.date.toString()
         }
     }

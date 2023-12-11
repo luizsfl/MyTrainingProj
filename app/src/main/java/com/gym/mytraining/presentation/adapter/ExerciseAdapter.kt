@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.gym.mytraining.R
 import com.gym.mytraining.databinding.ItemExerciseBinding
 import com.gym.mytraining.databinding.ItemTrainingBinding
 import com.gym.mytraining.domain.model.Exercise
@@ -21,8 +22,9 @@ class ExerciseAdapter(private val dataSet: List<Exercise>) :
     class ViewHolder(val binding: ItemExerciseBinding, val context: Context) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Exercise){
-            binding.title.text = item.name
-            binding.observation.text = item.observation
+            binding.title.text = context.getString(R.string.name_exercise, item.name)
+            binding.observation.text =
+                context.getString(R.string.observation_exercise, item.observation)
             // binding.date.text = item.date.toString()
             if(item.deleted){
                 binding.container1.setBackgroundColor(Color.DKGRAY)

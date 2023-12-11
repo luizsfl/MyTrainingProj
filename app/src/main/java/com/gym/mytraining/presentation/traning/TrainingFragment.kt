@@ -14,6 +14,7 @@ import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import com.gym.mytraining.R
 import com.gym.mytraining.databinding.FragmentTraningBinding
 import com.gym.mytraining.domain.model.Training
@@ -44,6 +45,10 @@ class TrainingFragment : Fragment() {
             findNavController().navigate(action)
         }
 
+        binding.ivLogout.setOnClickListener {
+            logout()
+        }
+
         viewModel.viewStateTraining.observe(viewLifecycleOwner) { viewState ->
             when (viewState) {
                 is ViewStateTraining.Loading    -> showLoading(viewState.loading)
@@ -54,6 +59,12 @@ class TrainingFragment : Fragment() {
             }
         }
         return root
+    }
+
+    private fun logout() {
+        FirebaseAuth.getInstance().signOut();
+        val action = TrainingFragmentDirections.actionTraningFragmentToLoginFragment()
+        findNavController().navigate(action)
     }
 
     private fun getAllTraining(){
