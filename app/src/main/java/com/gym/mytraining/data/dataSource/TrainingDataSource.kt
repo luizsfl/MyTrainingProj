@@ -1,7 +1,13 @@
 package com.gym.mytraining.data.dataSource
 
+import android.app.ProgressDialog
+import android.content.Context
+import android.net.Uri
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import com.gym.mytraining.data.Config.ConfiguracaoFirebase
 import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
@@ -12,6 +18,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import java.util.Date
 
 interface TrainingDataSource {
     fun insert(training: Training,listExercise:List<Exercise>): Flow<String>
@@ -149,6 +156,12 @@ class TrainingDataSourceImp (
                                             .addOnFailureListener {
                                                 messengerErro = it.message.toString()
                                             }
+                                            .addOnSuccessListener {
+
+                                                val newExercise = exercise.copy(idExercise = it.id)
+
+                                                uploadImage(newExercise)
+                                            }
                                     }
                                 }else{
                                     if(exercise.deleted){
@@ -164,6 +177,9 @@ class TrainingDataSourceImp (
                                             .set(exercise)
                                             .addOnFailureListener {
                                                 messengerErro = it.message.toString()
+                                            }
+                                            .addOnSuccessListener {
+                                                uploadImage(exercise)
                                             }
                                     }
                                 }
@@ -187,5 +203,21 @@ class TrainingDataSourceImp (
             }
         }.flowOn(dispatcher)
     }
+
+
+    private fun uploadImage(item:Exercise) {
+        if(!item.image.toString().isEmpty()){
+            val mStorageRef = FirebaseStorage.getInstance().reference
+            //val date = Date()
+            val uploadTask = mStorageRef.child("${item.idExercise}.png").putFile(item.image)
+            uploadTask.addOnSuccessListener {
+
+            }.addOnFailureListener {
+                // Log.e("Frebase", "Image Upload fail")
+                val test = ""
+            }
+        }
+    }
+
 }
 

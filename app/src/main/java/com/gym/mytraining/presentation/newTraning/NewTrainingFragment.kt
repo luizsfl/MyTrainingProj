@@ -1,20 +1,30 @@
 package com.gym.mytraining.presentation.newTraning
 
+import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.Gravity
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -25,12 +35,11 @@ import com.gym.mytraining.domain.model.Training
 import com.gym.mytraining.presentation.adapter.ExerciseAdapter
 import com.gym.mytraining.presentation.exercise.ExerciseFragment
 import com.gym.mytraining.presentation.exercise.ExerciseViewModel
-
-import com.gym.mytraining.presentation.traning.TrainingFragmentDirections
 import com.gym.mytraining.presentation.viewState.ViewStateExercise
 import com.gym.mytraining.presentation.viewState.ViewStateTraining
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.sql.Timestamp
+
 class NewTrainingFragment : Fragment() {
 
     private var _binding: FragmentNewTraningBinding? = null
@@ -40,7 +49,8 @@ class NewTrainingFragment : Fragment() {
     private var training: Training? = null
     private val args = navArgs<NewTrainingFragmentArgs>()
     private lateinit var typeScreen: TypeOperation
-
+    private lateinit var view: View
+    private var imageUri = Uri.parse("")
     private val listExercise = mutableListOf<Exercise>()
 
     enum class TypeOperation {
@@ -228,18 +238,44 @@ class NewTrainingFragment : Fragment() {
         showLoading(false)
     }
 
+    fun openSomeActivityForResult() {
+        val galleryIntent = Intent(Intent.ACTION_PICK)
+        galleryIntent.type = "image/*"
+        imagePickerActivityResult.launch(galleryIntent)
+    }
+
+    private var imagePickerActivityResult: ActivityResultLauncher<Intent> =
+
+        registerForActivityResult( ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result != null) {
+                imageUri = result.data?.data
+
+                val appCompatImageView = view.findViewById<AppCompatImageView>(R.id.appCompatImageView)
+                appCompatImageView.setImageURI(imageUri)
+            }
+        }
 
     private fun changeExercise(contextTela: Context,exercise: Exercise,viewExercise: ExerciseFragment.TypeOperation,position:Int) {
 
         val builder = AlertDialog.Builder(contextTela!!)
-        val view: View
-        val inflater =
-            contextTela!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        view = inflater.inflate(R.layout.layout_insert_exercise, null)
+        val inflater = contextTela!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
+        view = inflater.inflate(R.layout.layout_insert_exercise, null)
         val tiTitleScreenExercise = view.findViewById<TextView>(R.id.tvTitleExercise)
         val tiName = view.findViewById<TextInputEditText>(R.id.tiNomeExercise)
         val tiObservation = view.findViewById<TextInputEditText>(R.id.tiObservationExercise)
+        val btnSelectPhoto = view.findViewById<AppCompatButton>(R.id.btnSelectPhoto)
+        val appCompatImageView = view.findViewById<AppCompatImageView>(R.id.appCompatImageView)
+
+        if(!exercise.image.toString().isEmpty()){
+            imageUri = exercise.image
+        }
+
+        btnSelectPhoto.setOnClickListener {
+
+            openSomeActivityForResult()
+
+        }
 
         tiName.setText(exercise.name)
 
@@ -247,10 +283,31 @@ class NewTrainingFragment : Fragment() {
             tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_view)
             tiName.isEnabled = false
             tiObservation.isEnabled = false
+            btnSelectPhoto.isEnabled = false
+
+            if(!exercise.image.toString().isEmpty()) {
+                Glide.with(contextTela)
+                    .load(exercise.image)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .placeholder(R.drawable.loading)
+                    .into(appCompatImageView)
+            }
+
         }else if(viewExercise == ExerciseFragment.TypeOperation.EDIT) {
             val observationView =  if (exercise.observation.isEmpty()) " " else exercise.observation
             tiObservation.setText(observationView)
             tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_update)
+
+            if(!exercise.image.toString().isEmpty()) {
+                Glide.with(contextTela)
+                    .load(exercise.image)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .placeholder(R.drawable.loading)
+                    .into(appCompatImageView)
+            }
+
         }else if(viewExercise == ExerciseFragment.TypeOperation.INSERT) {
             tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_new)
         }
@@ -272,23 +329,26 @@ class NewTrainingFragment : Fragment() {
                     tiName.error = errorExerciseEmpty
                 }else{
                     val observation =  if (tiObservation.text.toString().isEmpty()) "" else tiObservation.text.toString()
-                    val updExercise = exercise.copy(
-                        name = tiName.text.toString(),
-                        observation = observation,
-                        //image = Uri.parse(""),
-                    )
+
 
                     if (viewExercise == ExerciseFragment.TypeOperation.EDIT){
-                        //viewModel.updateExercise(updExercise)
+
+                        val updExercise = exercise.copy(
+                            name = tiName.text.toString(),
+                            observation = observation,
+                            image = imageUri,
+                        )
+
                         listExercise.set(position,updExercise)
                         setAdapter(listExercise)
+
                     }else if (viewExercise == ExerciseFragment.TypeOperation.INSERT){
 
                         val observation =  if (tiObservation.text.toString().isEmpty()) "" else tiObservation.text.toString()
 
                         val exercise = Exercise(
                             name = tiName.text.toString(),
-                            //image = Uri.parse(""),
+                            image = imageUri,
                             observation = observation
                         )
 

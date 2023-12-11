@@ -31,4 +31,5 @@
     <string name="ti_hint_description_training">Informe a descrição do treino</string>
     <string name="ti_insert_new_exercise">Inserir exercício</string>
     <string name="loading">Carregando</string>
+    <string name="tv_look">Visualizar</string>
 </resources>

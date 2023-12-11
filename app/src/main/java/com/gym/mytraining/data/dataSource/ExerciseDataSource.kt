@@ -3,7 +3,10 @@ package com.gym.mytraining.data.dataSource
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.dataObjects
+import com.google.firebase.storage.FirebaseStorage
 import com.gym.mytraining.data.Config.ConfiguracaoFirebase
+import com.gym.mytraining.data.model.ExerciseResponse
+import com.gym.mytraining.domain.Mapper.toExercise
 import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
 import kotlinx.coroutines.CoroutineDispatcher
@@ -41,9 +44,9 @@ class ExerciseDataSourceImp (
 
                     for (document in result) {
 
-                        val exercise = document.toObject(Exercise::class.java)!!
+                        val exerciseResponse = document.toObject(ExerciseResponse::class.java)!!
 
-                        val newTraining = exercise.copy(idExercise = document.id)
+                        val newTraining = exerciseResponse.copy(idExercise = document.id).toExercise()
 
                         listResponse.add(newTraining)
                     }
@@ -96,6 +99,8 @@ class ExerciseDataSourceImp (
 
                             exercise = item.copy(idExercise = it.result.id)
 
+                            uploadImage(exercise)
+
                         } else {
                             messengerErro = it.exception.toString()
                         }
@@ -117,7 +122,11 @@ class ExerciseDataSourceImp (
                 .document(item.idExercise)
                 .set(item)
                 .addOnSuccessListener { result ->
+                    
+                    uploadImage(item)
+
                     trySend(item)
+
                 }
                 .addOnFailureListener {
                     val messengerErro = "DeleteExercise ${it.message.toString()}"
@@ -128,4 +137,19 @@ class ExerciseDataSourceImp (
             }
         }.flowOn(dispatcher)
     }
+
+    private fun uploadImage(item:Exercise) {
+        if(!item.image.toString().isEmpty()){
+            val mStorageRef = FirebaseStorage.getInstance().reference
+            //val date = Date()
+            val uploadTask = mStorageRef.child("${item.idExercise}.png").putFile(item.image)
+            uploadTask.addOnSuccessListener {
+
+            }.addOnFailureListener {
+                // Log.e("Frebase", "Image Upload fail")
+                val test = ""
+            }
+        }
+    }
+
 }
