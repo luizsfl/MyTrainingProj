@@ -38,4 +38,6 @@
     <string name="name_exercise">Exercício: %1$s</string>
     <string name="observation_exercise">Observação: %1$s</string>
     <string name="description_date_training">Data: %1$s</string>
+    <string name="ti_info_desc_exercise">Informe a descrição do exercício</string>
+    <string name="ti_info_name_exercise">Informe o nome do exercício</string>
 </resources>
