@@ -13,10 +13,10 @@ import com.gym.mytraining.domain.model.Training
 class ExerciseAdapter(private val dataSet: List<Exercise>) :
     RecyclerView.Adapter<ExerciseAdapter.ViewHolder>() {
 
-    var onItemClick : ((Exercise)-> Unit)? = null
+    var onItemClick : ((Exercise,Int)-> Unit)? = null
     var onItemClickExcluir : ((Exercise,Int)-> Unit)? = null
     var onItemClickEditar : ((Exercise,Int)-> Unit)? = null
-    var onItemClickVisualizar : ((Exercise)-> Unit)? = null
+    var onItemClickVisualizar : ((Exercise,Int)-> Unit)? = null
 
     class ViewHolder(val binding: ItemExerciseBinding, val context: Context) : RecyclerView.ViewHolder(binding.root) {
 
@@ -41,10 +41,10 @@ class ExerciseAdapter(private val dataSet: List<Exercise>) :
         viewHolder.bind(dataSet[position])
 
         viewHolder.binding.lcDados.setOnClickListener {
-            onItemClick?.invoke(dataSet[position])
+            onItemClick?.invoke(dataSet[position],position)
         }
         viewHolder.binding.ivVisualizar.setOnClickListener {
-            onItemClickVisualizar?.invoke(dataSet[position])
+            onItemClickVisualizar?.invoke(dataSet[position],position)
         }
 
         viewHolder.binding.ivExcluir.setOnClickListener {

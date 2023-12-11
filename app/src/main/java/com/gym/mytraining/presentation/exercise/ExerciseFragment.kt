@@ -1,6 +1,8 @@
 package com.gym.mytraining.presentation.exercise
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -8,10 +10,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -30,6 +39,8 @@ class ExerciseFragment : Fragment() {
     private val viewModel: ExerciseViewModel by viewModel()
     private val args = navArgs<ExerciseFragmentArgs>()
     private var training: Training ? = null
+    private var imageUri = Uri.parse("")
+    private lateinit var view: View
 
     private lateinit var rotaAdapter: ExerciseAdapter
     enum class TypeOperation {
@@ -57,6 +68,10 @@ class ExerciseFragment : Fragment() {
             val newExercise = Exercise().copy(idTraining = training!!.idTraining)
 
             changeExercise(requireContext(),newExercise,TypeOperation.INSERT)
+        }
+
+        binding.ivVoltar.setOnClickListener {
+            findNavController().navigateUp()
         }
 
         viewModel.viewStateExercise.observe(viewLifecycleOwner) { viewState ->
@@ -103,11 +118,11 @@ class ExerciseFragment : Fragment() {
             binding.txtSemEntregas.visibility = View.GONE
         }
 
-        rotaAdapter.onItemClick = {
-            changeExercise(requireContext(),it,TypeOperation.VIEW)
+        rotaAdapter.onItemClick = {exercise, _ ->
+            changeExercise(requireContext(),exercise,TypeOperation.VIEW)
         }
-        rotaAdapter.onItemClickVisualizar = {
-            changeExercise(requireContext(),it,TypeOperation.VIEW)
+        rotaAdapter.onItemClickVisualizar = {exercise, _ ->
+            changeExercise(requireContext(),exercise,TypeOperation.VIEW)
         }
 
 
@@ -145,10 +160,26 @@ class ExerciseFragment : Fragment() {
         getAllExercise(training!!)
     }
 
+    fun openSomeActivityForResult() {
+        val galleryIntent = Intent(Intent.ACTION_PICK)
+        galleryIntent.type = "image/*"
+        imagePickerActivityResult.launch(galleryIntent)
+    }
+
+    private var imagePickerActivityResult: ActivityResultLauncher<Intent> =
+
+        registerForActivityResult( ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result != null) {
+                imageUri = result.data?.data
+
+                val appCompatImageView = view.findViewById<AppCompatImageView>(R.id.appCompatImageView)
+                appCompatImageView.setImageURI(imageUri)
+            }
+        }
+
     private fun changeExercise(contextTela: Context,exercise: Exercise,viewExercise:TypeOperation) {
 
         val builder = AlertDialog.Builder(contextTela!!)
-        val view: View
         val inflater =
             contextTela!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         view = inflater.inflate(R.layout.layout_insert_exercise, null)
@@ -157,16 +188,51 @@ class ExerciseFragment : Fragment() {
         val tiName = view.findViewById<TextInputEditText>(R.id.tiNomeExercise)
         val tiObservation = view.findViewById<TextInputEditText>(R.id.tiObservationExercise)
         val observationView =  if (exercise.observation.isEmpty()) " " else exercise.observation
+        val btnSelectPhoto = view.findViewById<AppCompatButton>(R.id.btnSelectPhoto)
+        val appCompatImageView = view.findViewById<AppCompatImageView>(R.id.appCompatImageView)
+
+
+        if(!exercise.image.toString().isEmpty()){
+            imageUri = exercise.image
+        }
+
+        btnSelectPhoto.setOnClickListener {
+            openSomeActivityForResult()
+        }
 
         tiName.setText(exercise.name)
-        tiObservation.setText(observationView)
 
         if(viewExercise == TypeOperation.VIEW){
             tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_view)
             tiName.isEnabled = false
             tiObservation.isEnabled = false
+            btnSelectPhoto.isEnabled = false
+
+            if(!exercise.image.toString().isEmpty()) {
+                Glide.with(contextTela)
+                    .load(exercise.image)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .placeholder(R.drawable.loading)
+                    .into(appCompatImageView)
+
+            }
+
         }else if(viewExercise == TypeOperation.EDIT) {
+
             tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_update)
+            val observationView =  if (exercise.observation.isEmpty()) " " else exercise.observation
+            tiObservation.setText(observationView)
+
+            if(!exercise.image.toString().isEmpty()) {
+                Glide.with(contextTela)
+                    .load(exercise.image)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .placeholder(R.drawable.loading)
+                    .into(appCompatImageView)
+            }
+
         }else if(viewExercise == TypeOperation.INSERT) {
             tiTitleScreenExercise.text = getString(R.string.title_screen_exercise_new)
         }
@@ -191,7 +257,7 @@ class ExerciseFragment : Fragment() {
                     val updExercise = exercise.copy(
                         name = tiName.text.toString(),
                         observation = observation,
-                        //image = Uri.parse(""),
+                        image = imageUri,
                     )
 
                     if (viewExercise == TypeOperation.EDIT){
@@ -207,4 +273,6 @@ class ExerciseFragment : Fragment() {
 
         dialog.show()
     }
+
+
 }

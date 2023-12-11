@@ -6,7 +6,7 @@ data class Exercise(
     val idExercise:String = "",
     val idTraining:String = "",
     val name:String = "",
-    //val image:Uri = Uri.parse(""),
+    val image:Uri = Uri.parse(""),
     val observation:String = "",
     val deleted :Boolean = false,
 ):java.io.Serializable
