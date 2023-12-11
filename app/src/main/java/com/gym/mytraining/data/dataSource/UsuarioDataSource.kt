@@ -16,8 +16,8 @@ import kotlinx.coroutines.flow.flowOn
 interface UsuarioDataSource {
     fun addUsuario(usuario: Usuario): Flow<Usuario>
     fun verificarUserLogado(): Flow<Boolean>
-
 }
+
 class UsuarioDataSourceImp(
         private val autenticacao: FirebaseAuth = ConfiguracaoFirebase.getFirebaseAutenticacao(),
         private val autenticacaoFirestore: FirebaseFirestore = ConfiguracaoFirebase.getFirebaseFirestore(),
@@ -74,13 +74,11 @@ class UsuarioDataSourceImp(
             }.flowOn(dispatcher)
         }
 
-
     override fun verificarUserLogado(): Flow<Boolean>{
             return flow {
                 try {
 
                     val usuarioLogado = autenticacao.currentUser
-
 
                     emit(usuarioLogado!=null || logadoCadastro)
 

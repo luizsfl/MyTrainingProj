@@ -20,9 +20,8 @@ class TrainingAdapter(private val dataSet: List<Training>) :
 
         fun bind(item: Training){
             binding.title.text = context.getString(R.string.name_training, item.name)
-            binding.description.text =
-                context.getString(R.string.description_training, item.description)
-           // binding.date.text = item.date.toString()
+            binding.description.text = context.getString(R.string.description_training, item.description)
+            binding.date.text = context.getString(R.string.description_date_training, item.dateToString())
         }
     }
 

@@ -9,6 +9,8 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.gym.mytraining.data.Config.ConfiguracaoFirebase
+import com.gym.mytraining.data.model.TrainingResponse
+import com.gym.mytraining.domain.Mapper.toTraining
 import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
 import kotlinx.coroutines.CoroutineDispatcher
@@ -94,9 +96,9 @@ class TrainingDataSourceImp (
 
                     for (document in result) {
 
-                        val training = document.toObject(Training::class.java)!!
+                        val training = document.toObject(TrainingResponse::class.java)!!
 
-                        val newTraining = training.copy(idTraining = document.id)
+                        val newTraining = training.copy(idTraining = document.id).toTraining()
 
                         listResponse.add(newTraining)
                     }
@@ -208,16 +210,13 @@ class TrainingDataSourceImp (
     private fun uploadImage(item:Exercise) {
         if(!item.image.toString().isEmpty()){
             val mStorageRef = FirebaseStorage.getInstance().reference
-            //val date = Date()
             val uploadTask = mStorageRef.child("${item.idExercise}.png").putFile(item.image)
             uploadTask.addOnSuccessListener {
 
             }.addOnFailureListener {
-                // Log.e("Frebase", "Image Upload fail")
-                val test = ""
+                Log.e("Frebase_uploadImage", it.message.toString())
             }
         }
     }
-
 }
 
