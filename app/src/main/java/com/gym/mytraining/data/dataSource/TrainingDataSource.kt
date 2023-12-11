@@ -37,34 +37,25 @@ class TrainingDataSourceImp (
             try {
 
                 val idUsuario= autenticacao.currentUser?.uid.toString()
-                val newTraining = training.copy(idUsuario=idUsuario)
-
-                var idTraining = ""
+                var newTraining = training.copy(idUsuario=idUsuario)
 
                 autenticacaFirestore.collection("training")
                     .add(newTraining)
                     .addOnSuccessListener {
-                            idTraining = it.id
+
+                            val newTraining = newTraining.copy(idTraining=it.id)
+
                             for(position in listExercise.indices ){
 
                                 val exercise = listExercise.get(position)
 
-                                val newExercise = exercise.copy(idTraining=idTraining)
+                                val newExercise = exercise.copy(idTraining=newTraining.idTraining)
+                                changeExercise(newExercise, newTraining, position, listExercise)
 
-                                autenticacaFirestore.collection("exercise")
-                                    .add(newExercise)
-                                    .addOnFailureListener {
-                                        trySend(error("${it.message.toString()}"))
-                                    }
-                                    .addOnSuccessListener {
-                                        if(position == listExercise.lastIndex){
-                                            trySend(idTraining)
-                                        }
-                                    }
                             }
 
                         if(listExercise.size==0){
-                            trySend(idTraining)
+                            trySend(newTraining.idTraining)
                         }
 
                     }.addOnFailureListener {
@@ -140,48 +131,7 @@ class TrainingDataSourceImp (
 
                                 val exercise = listExercise.get(position)
 
-                                if(exercise.idExercise.isNullOrEmpty()){
-                                    if(!exercise.deleted){
-                                        val newExercise = exercise.copy(idTraining=item.idTraining)
-
-                                        autenticacaFirestore.collection("exercise")
-                                            .add(newExercise)
-                                            .addOnFailureListener {
-                                                trySend(error(it.message.toString()))
-                                            }
-                                            .addOnSuccessListener {
-                                                val newExercise = exercise.copy(idExercise = it.id)
-                                                uploadImage(newExercise,item,position == listExercise.lastIndex)
-                                            }
-                                    }else{
-                                        if(position == listExercise.lastIndex){
-                                            trySend(item.idTraining)
-                                        }
-                                    }
-                                }else{
-                                    if(exercise.deleted){
-                                        autenticacaFirestore.collection("exercise")
-                                            .document(exercise.idExercise)
-                                            .delete()
-                                            .addOnFailureListener {
-                                                trySend(error(it.message.toString()))
-                                            }.addOnSuccessListener {
-                                                if(position == listExercise.lastIndex){
-                                                    trySend(item.idTraining)
-                                                }
-                                            }
-                                    }else{
-                                        autenticacaFirestore.collection("exercise")
-                                            .document(exercise.idExercise)
-                                            .set(exercise)
-                                            .addOnFailureListener {
-                                                trySend(error(it.message.toString()))
-                                            }
-                                            .addOnSuccessListener {
-                                                uploadImage(exercise,item,position == listExercise.lastIndex)
-                                            }
-                                    }
-                                }
+                                changeExercise(exercise, item, position, listExercise)
 
                             }
 
@@ -194,13 +144,63 @@ class TrainingDataSourceImp (
                     }
 
                 awaitClose {
-                    close()
+                 //   close()
                 }
 
             } catch (e: Exception) {
                 trySend(error(e.message.toString()))
             }
         }.flowOn(dispatcher)
+    }
+
+    private fun ProducerScope<String>.changeExercise(
+        exercise: Exercise,
+        item: Training,
+        position: Int,
+        listExercise: List<Exercise>
+    ) {
+        if (exercise.idExercise.isNullOrEmpty()) {
+            if (!exercise.deleted) {
+                val newExercise = exercise.copy(idTraining = item.idTraining)
+
+                autenticacaFirestore.collection("exercise")
+                    .add(newExercise)
+                    .addOnFailureListener {
+                        trySend(error(it.message.toString()))
+                    }
+                    .addOnSuccessListener {
+                        val newExercise = exercise.copy(idExercise = it.id)
+                        uploadImage(newExercise, item, position == listExercise.lastIndex)
+                    }
+            } else {
+                if (position == listExercise.lastIndex) {
+                    trySend(item.idTraining)
+                }
+            }
+        } else {
+            if (exercise.deleted) {
+                autenticacaFirestore.collection("exercise")
+                    .document(exercise.idExercise)
+                    .delete()
+                    .addOnFailureListener {
+                        trySend(error(it.message.toString()))
+                    }.addOnSuccessListener {
+                        if (position == listExercise.lastIndex) {
+                            trySend(item.idTraining)
+                        }
+                    }
+            } else {
+                autenticacaFirestore.collection("exercise")
+                    .document(exercise.idExercise)
+                    .set(exercise)
+                    .addOnFailureListener {
+                        trySend(error(it.message.toString()))
+                    }
+                    .addOnSuccessListener {
+                        uploadImage(exercise, item, position == listExercise.lastIndex)
+                    }
+            }
+        }
     }
 
     private fun ProducerScope<String>.uploadImage(
