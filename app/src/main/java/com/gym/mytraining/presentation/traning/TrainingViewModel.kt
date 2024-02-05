@@ -18,18 +18,6 @@ class TrainingViewModel(
     private var _viewStateTraining = MutableLiveData<ViewStateTraining>()
     var viewStateTraining: LiveData<ViewStateTraining> = _viewStateTraining
 
-//    fun insert(training: Training) {
-//        viewModelScope.launch {
-//            trainingInteractor.insert(training)
-//                .onStart { _viewStateTraining.value = ViewStateTraining.Loading(loading = true) }
-//                .catch {
-//                    _viewStateTraining.value = ViewStateTraining.Failure(messengerError = it.message.orEmpty())
-//                }
-//                .collect { setLogado(it) }
-//        }
-//    }
-
-
     fun getAll() {
         viewModelScope.launch {
             trainingInteractor.getAll()

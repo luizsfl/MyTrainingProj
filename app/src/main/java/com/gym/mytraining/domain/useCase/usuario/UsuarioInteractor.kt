@@ -13,10 +13,8 @@ class UsuarioInteractorImp(
     private val usuarioInsertUseCase: UsuarioInsertUseCase,
     private val usuarioVerificarUsuarioLogadoUseCase: UsuarioLogadoUseCase
 ) : UsuarioInteractor {
-    override fun insert(usuario: Usuario): Flow<ViewStateUsuario> {
-        return usuarioInsertUseCase.invoke(usuario)
-    }
 
-    //override fun insert(usuario: Usuario) = usuarioInsertUseCase.invoke(usuario)
+    override fun insert(usuario: Usuario) = usuarioInsertUseCase.invoke(usuario)
+
     override fun verificarUsuarioLogado() = usuarioVerificarUsuarioLogadoUseCase.invoke()
 }

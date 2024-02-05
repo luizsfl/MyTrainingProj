@@ -3,8 +3,9 @@ package com.gym.mytraining.data.dataSource
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import com.gym.mytraining.data.Config.ConfiguracaoFirebase
 import com.gym.mytraining.data.model.TrainingResponse
 import com.gym.mytraining.domain.Mapper.toTraining
 import com.gym.mytraining.domain.model.Exercise
@@ -20,15 +21,13 @@ import kotlinx.coroutines.flow.flowOn
 interface TrainingDataSource {
     fun insert(training: Training,listExercise:List<Exercise>): Flow<String>
     fun getAllTraining(): Flow<List<Training>>
-
     fun delete(item: Training): Flow<Training>
-
     fun update(training: Training,listExercise:List<Exercise>): Flow<String>
-
 }
+
 class TrainingDataSourceImp (
-    private val autenticacaFirestore: FirebaseFirestore = ConfiguracaoFirebase.getFirebaseFirestore(),
-    private val autenticacao: FirebaseAuth = ConfiguracaoFirebase.getFirebaseAutenticacao(),
+    private val autenticacaFirestore: FirebaseFirestore = Firebase.firestore,
+    private val autenticacao: FirebaseAuth = FirebaseAuth.getInstance(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ):TrainingDataSource {
 
@@ -144,7 +143,7 @@ class TrainingDataSourceImp (
                     }
 
                 awaitClose {
-                 //   close()
+                    close()
                 }
 
             } catch (e: Exception) {
@@ -159,7 +158,7 @@ class TrainingDataSourceImp (
         position: Int,
         listExercise: List<Exercise>
     ) {
-        if (exercise.idExercise.isNullOrEmpty()) {
+        if (addSomenteEmTela(exercise)) {
             if (!exercise.deleted) {
                 val newExercise = exercise.copy(idTraining = item.idTraining)
 
@@ -173,7 +172,7 @@ class TrainingDataSourceImp (
                         uploadImage(newExercise, item, position == listExercise.lastIndex)
                     }
             } else {
-                if (position == listExercise.lastIndex) {
+                if (ultimoRegistro(position, listExercise)) {
                     trySend(item.idTraining)
                 }
             }
@@ -203,12 +202,22 @@ class TrainingDataSourceImp (
         }
     }
 
+    private fun ultimoRegistro(
+        position: Int,
+        listExercise: List<Exercise>
+    ) = position == listExercise.lastIndex
+
+    private fun addSomenteEmTela(exercise: Exercise) =
+        exercise.idExercise.isNullOrEmpty()
+
     private fun ProducerScope<String>.uploadImage(
         exercise: Exercise,
         training: Training,
         lastImag :Boolean,
     ) {
-        if (!exercise.image.toString().isEmpty() && !exercise.image.toString().contains("https://firebasestorage.googleapis.com")) {
+        if (!existImagem(exercise) &&
+            !imagemCadastrada(exercise)
+            ) {
             val mStorageRef = FirebaseStorage.getInstance().reference
             val uploadTask = mStorageRef.child("${exercise.idExercise}.png").putFile(exercise.image)
                 .addOnSuccessListener {
@@ -225,6 +234,12 @@ class TrainingDataSourceImp (
             }
         }
     }
+
+    private fun imagemCadastrada(exercise: Exercise) =
+        exercise.image.toString().contains("https://firebasestorage.googleapis.com")
+
+    private fun existImagem(exercise: Exercise) =
+        exercise.image.toString().isEmpty()
 
     private fun convertResponseToTraining(
         result: QuerySnapshot,

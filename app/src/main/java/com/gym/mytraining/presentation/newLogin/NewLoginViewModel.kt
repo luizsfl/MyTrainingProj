@@ -32,12 +32,12 @@ class NewLoginViewModel (
     }
 
     private fun setUsuario(viewStateUsuario: ViewStateUsuario) {
-        _viewStateUsuario.value = viewStateUsuario //ViewStateUsuario.SucessoUsuario(usuario)
+        _viewStateUsuario.value = viewStateUsuario
     }
 
     private fun validUsuario(usuario: Usuario):Boolean{
 
-        var lUsuarioValido: Boolean
+        val lUsuarioValido: Boolean
 
         if (!usuario.nome.isEmpty()){
             if (!usuario.email.isEmpty()){

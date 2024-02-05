@@ -1,6 +1,5 @@
 package com.gym.mytraining.presentation.viewState
 
-import androidx.constraintlayout.motion.utils.ViewState
 import com.gym.mytraining.domain.model.Exercise
 import com.gym.mytraining.domain.model.Training
 import com.gym.mytraining.domain.model.Usuario

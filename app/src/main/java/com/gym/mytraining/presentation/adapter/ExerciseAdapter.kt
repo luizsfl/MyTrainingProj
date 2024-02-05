@@ -9,9 +9,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.gym.mytraining.R
 import com.gym.mytraining.databinding.ItemExerciseBinding
-import com.gym.mytraining.databinding.ItemTrainingBinding
 import com.gym.mytraining.domain.model.Exercise
-import com.gym.mytraining.domain.model.Training
 
 class ExerciseAdapter(private val dataSet: List<Exercise>) :
     RecyclerView.Adapter<ExerciseAdapter.ViewHolder>() {

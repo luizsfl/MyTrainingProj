@@ -6,7 +6,8 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.firestore.FirebaseFirestore
-import com.gym.mytraining.data.Config.ConfiguracaoFirebase
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.gym.mytraining.domain.model.Usuario
 import com.gym.mytraining.presentation.viewState.ViewStateUsuario
 import kotlinx.coroutines.CoroutineDispatcher
@@ -24,12 +25,10 @@ interface UsuarioDataSource {
 }
 
 class UsuarioDataSourceImp(
-        private val autenticacao: FirebaseAuth = ConfiguracaoFirebase.getFirebaseAutenticacao(),
-        private val autenticacaoFirestore: FirebaseFirestore = ConfiguracaoFirebase.getFirebaseFirestore(),
-        private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val autenticacao: FirebaseAuth = FirebaseAuth.getInstance(),
+    private val autenticacaoFirestore: FirebaseFirestore = Firebase.firestore,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ):UsuarioDataSource {
-
-        private var logadoCadastro = false
 
         override fun addUsuario(usuario: Usuario): Flow<ViewStateUsuario> {
             return callbackFlow {
@@ -41,11 +40,7 @@ class UsuarioDataSourceImp(
                             val idUsuario = autenticacao.currentUser
                             usuario.idUsuario = idUsuario?.uid.toString()
                             setUser(usuario)
-                            //trySend(error("sucesso"))
-                            //trySend(ViewStateUsuario.SucessoUsuario(usuario))
-
                         }
-
                     }.addOnFailureListener {
                         val messengerErro = identifyErrors(it)
                         trySend(ViewStateUsuario.Failure(messengerErro))
@@ -65,21 +60,20 @@ class UsuarioDataSourceImp(
         autenticacaoFirestore.collection("usuarios")
             .document(usuario.idUsuario)
             .set(usuario)
-            .addOnFailureListener {
-                trySend(ViewStateUsuario.Failure(it.message.toString()))
-            }
             .addOnSuccessListener {
                 trySend(ViewStateUsuario.SucessoUsuario(usuario))
+            }
+            .addOnFailureListener {
+                trySend(ViewStateUsuario.Failure(it.message.toString()))
             }
     }
 
     override fun verificarUserLogado(): Flow<Boolean>{
             return flow {
                 try {
-
                     val usuarioLogado = autenticacao.currentUser
 
-                    emit(usuarioLogado!=null || logadoCadastro)
+                    emit(usuarioLogado!=null)
 
                 } catch (e: Exception) {
                     emit(error("VerificarUserLogado"+e.toString()))

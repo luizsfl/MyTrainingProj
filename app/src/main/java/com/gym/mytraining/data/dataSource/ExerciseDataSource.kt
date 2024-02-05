@@ -2,8 +2,9 @@ package com.gym.mytraining.data.dataSource
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import com.gym.mytraining.data.Config.ConfiguracaoFirebase
 import com.gym.mytraining.data.model.ExerciseResponse
 import com.gym.mytraining.domain.Mapper.toExercise
 import com.gym.mytraining.domain.model.Exercise
@@ -17,16 +18,39 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
 
 interface ExerciseDataSource {
+    fun insert(exercise: Exercise): Flow<Exercise>
     fun getAllExercise(training: Training): Flow<List<Exercise>>
     fun delete(exercise: Exercise): Flow<Exercise>
     fun update(exercise: Exercise): Flow<Exercise>
-    fun insert(exercise: Exercise): Flow<Exercise>
 }
 
 class ExerciseDataSourceImp (
-    private val autenticacaFirestore: FirebaseFirestore = ConfiguracaoFirebase.getFirebaseFirestore(),
+    private val autenticacaFirestore: FirebaseFirestore = Firebase.firestore,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ):ExerciseDataSource {
+    override fun insert(item: Exercise): Flow<Exercise> {
+        return callbackFlow {
+            try {
+                autenticacaFirestore.collection("exercise")
+                    .add(item)
+                    .addOnSuccessListener {
+
+                        val exercise = item.copy(idExercise = it.id)
+
+                        uploadImage(exercise)
+                    }
+                    .addOnFailureListener {
+                        trySend(error(it.message.toString()))
+                    }
+            } catch (e: Exception) {
+                trySend(error("${e.message.toString()}"))
+            }
+
+            awaitClose {
+                close()
+            }
+        }.flowOn(dispatcher)
+    }
 
     override fun getAllExercise(training: Training): Flow<List<Exercise>> {
         return callbackFlow {
@@ -71,30 +95,6 @@ class ExerciseDataSourceImp (
         }.flowOn(dispatcher)
     }
 
-    override fun insert(item: Exercise): Flow<Exercise> {
-        return callbackFlow {
-            try {
-                autenticacaFirestore.collection("exercise")
-                    .add(item)
-                    .addOnFailureListener {
-                        trySend(error(it.message.toString()))
-                    }
-                    .addOnSuccessListener {
-
-                        val exercise = item.copy(idExercise = it.id)
-
-                        uploadImage(exercise)
-                    }
-
-            } catch (e: Exception) {
-                trySend(error("${e.message.toString()}"))
-            }
-
-            awaitClose {
-                close()
-            }
-        }.flowOn(dispatcher)
-    }
 
     override fun update(item: Exercise): Flow<Exercise> {
         return callbackFlow {
@@ -116,21 +116,29 @@ class ExerciseDataSourceImp (
     private fun ProducerScope<Exercise>.uploadImage(
         exercise: Exercise
     ) {
-        if (!exercise.image.toString().isEmpty() && !exercise.image.toString().contains("https://firebasestorage.googleapis.com")) {
+        if (!existImage(exercise) &&
+            !imagemCadastrada(exercise)
+            ) {
 
             val mStorageRef = FirebaseStorage.getInstance().reference
             val uploadTask = mStorageRef.child("${exercise.idExercise}.png").putFile(exercise.image)
             uploadTask
-                .addOnFailureListener {
-                    trySend(error(it.message.toString()))
-                }
                 .addOnSuccessListener {
                     trySend(exercise)
+                }
+                .addOnFailureListener {
+                    trySend(error(it.message.toString()))
                 }
         }else{
             trySend(exercise)
         }
     }
+
+    private fun imagemCadastrada(exercise: Exercise) =
+        exercise.image.toString().contains("https://firebasestorage.googleapis.com")
+
+    private fun existImage(exercise: Exercise) =
+        exercise.image.toString().isEmpty()
 
     private fun convertResponseToExercise(
         result: QuerySnapshot,
