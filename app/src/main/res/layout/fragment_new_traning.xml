@@ -133,6 +133,7 @@
             android:layout_marginBottom="10dp"
             android:padding="20dp"
             tools:text="Salvar Treino"
+            android:backgroundTint="@color/purple_700"
             />
 
         <ImageView

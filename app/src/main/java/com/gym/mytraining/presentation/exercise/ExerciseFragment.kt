@@ -26,6 +26,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import com.gym.mytraining.R
 import com.gym.mytraining.databinding.FragmentExerciseBinding
 import com.gym.mytraining.domain.model.Exercise
@@ -223,12 +225,17 @@ class ExerciseFragment : Fragment() {
             btnSelectPhoto.isEnabled = false
 
             if(!exercise.image.toString().isEmpty()) {
-                Glide.with(contextTela)
-                    .load(exercise.image)
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .skipMemoryCache(true)
-                    .placeholder(R.drawable.loading)
-                    .into(appCompatImageView)
+
+                Firebase.storage.reference.child("${exercise.idExercise}.png").
+                downloadUrl.addOnSuccessListener { Uri->
+                    Glide.with(contextTela)
+                        .load(Uri.toString())
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .skipMemoryCache(true)
+                        .placeholder(R.drawable.loading)
+                        .into(appCompatImageView)
+
+                }
 
             }
 
@@ -239,12 +246,16 @@ class ExerciseFragment : Fragment() {
             tiObservation.setText(observationView)
 
             if(!exercise.image.toString().isEmpty()) {
-                Glide.with(contextTela)
-                    .load(exercise.image)
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .skipMemoryCache(true)
-                    .placeholder(R.drawable.loading)
-                    .into(appCompatImageView)
+                
+                Firebase.storage.reference.child("${exercise.idExercise}.png").
+                downloadUrl.addOnSuccessListener { Uri->
+                    Glide.with(contextTela)
+                        .load(Uri.toString())
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .skipMemoryCache(true)
+                        .placeholder(R.drawable.loading)
+                        .into(appCompatImageView)
+                }
             }
 
         }else if(viewExercise == TypeOperation.INSERT) {
