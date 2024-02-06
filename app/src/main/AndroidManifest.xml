@@ -27,10 +27,10 @@
         </activity>
 
         <!-- TESTE AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
-        <!-- PRODUCAO_bloqueadi AdMob app ID: ca-app-pub-5886953049782292~1529676961 -->
+        <!-- PRODUCAO_bloqueadi AdMob app ID: ca-app-pub-5886953049782292~2491205420 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-5886953049782292~2491205420" />
     </application>
 
 </manifest>

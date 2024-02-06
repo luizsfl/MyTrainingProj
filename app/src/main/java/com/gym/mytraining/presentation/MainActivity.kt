@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
 
                 if(adContainer.visibility == View.GONE){
                     adContainer.visibility = View.VISIBLE
-                    val adFacView = com.facebook.ads.AdView(this, testAdsemse+"6216200041747388_6230361753664550", AdSize.BANNER_HEIGHT_50)
+                    val adFacView = com.facebook.ads.AdView(this, testAdsemse+"740075444744251_740076161410846", AdSize.BANNER_HEIGHT_50)
 
                     adContainer.addView(adFacView)
 

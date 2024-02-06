@@ -41,6 +41,7 @@
     <string name="ti_info_desc_exercise">Informe a descrição do exercício</string>
     <string name="ti_info_name_exercise">Informe o nome do exercício</string>
 
-    <string name="banner_home">ca-app-pub-3940256099942544/6300978111</string>
+<!--    <string name="banner_home">ca-app-pub-3940256099942544/6300978111</string>-->
+        <string name="banner_home">ca-app-pub-5886953049782292/5508213010</string>
 
 </resources>

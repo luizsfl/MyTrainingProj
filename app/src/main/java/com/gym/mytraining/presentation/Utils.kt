@@ -32,7 +32,7 @@ class Utils() {
                 }
             }
             .addOnFailureListener { exception ->
-                _typeAds.postValue( 0)
+                _typeAds.postValue( 2)
             }
     }
 
