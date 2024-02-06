@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import com.gym.mytraining.R
 import com.gym.mytraining.databinding.ItemExerciseBinding
 import com.gym.mytraining.domain.model.Exercise
@@ -29,12 +31,16 @@ class ExerciseAdapter(private val dataSet: List<Exercise>) :
                 binding.container1.setBackgroundColor(Color.DKGRAY)
             }
 
-            Glide.with(context)
-                .load(item.image)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .skipMemoryCache(true)
-                .placeholder(R.drawable.loading)
-                .into(binding.appCompatImageView)
+            Firebase.storage.reference.child("${item.idExercise}.png").
+            downloadUrl.addOnSuccessListener { Uri->
+                Glide.with(context)
+                    .load(Uri.toString())
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .placeholder(R.drawable.loading)
+                    .into(binding.appCompatImageView)
+            }
+
         }
     }
 

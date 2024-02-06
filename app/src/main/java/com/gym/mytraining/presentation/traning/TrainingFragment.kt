@@ -3,7 +3,6 @@ package com.gym.mytraining.presentation.traning
 import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +10,7 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
@@ -18,6 +18,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.gym.mytraining.R
 import com.gym.mytraining.databinding.FragmentTraningBinding
 import com.gym.mytraining.domain.model.Training
+import com.gym.mytraining.presentation.MainActivity
+import com.gym.mytraining.presentation.Utils
 import com.gym.mytraining.presentation.adapter.TrainingAdapter
 import com.gym.mytraining.presentation.newTraning.NewTrainingFragment
 import com.gym.mytraining.presentation.viewState.ViewStateTraining
@@ -35,6 +37,8 @@ class TrainingFragment : Fragment() {
     ): View? {
         _binding = FragmentTraningBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+        (activity as MainActivity).chama()
 
         (activity as AppCompatActivity).supportActionBar?.hide()
 

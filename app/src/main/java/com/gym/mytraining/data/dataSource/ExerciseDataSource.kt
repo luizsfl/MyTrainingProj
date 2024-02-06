@@ -124,6 +124,7 @@ class ExerciseDataSourceImp (
             val uploadTask = mStorageRef.child("${exercise.idExercise}.png").putFile(exercise.image)
             uploadTask
                 .addOnSuccessListener {
+                    it.uploadSessionUri
                     trySend(exercise)
                 }
                 .addOnFailureListener {
